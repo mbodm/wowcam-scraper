@@ -1,0 +1,15 @@
+{
+  "name": "wowcam-scraper",
+  "version": "1.0.0",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node --watch src/app.js"
+  },
+  "author": "MBODM",
+  "license": "MIT",
+  "description": "WOWCAM backend service, which scrapes addon data from the web (by using Puppeteer).",
+  "dependencies": {
+    "puppeteer": "^24.6.1"
+  },
+  "type": "module"
+}
