@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { getFaviconFilePath } from './helper.js';
 import { parseSite } from './browser.js';
+import { createCurseObject, validateCurseObject, createAddonObject } from './curse.js';
 
 export function run() {
     const server = createServer(async (req, res) => {
@@ -36,20 +37,37 @@ export function run() {
             if (!addon) {
                 return res.errorResponse(400, 'Missing "addon" query parameter in request URL.');
             }
-            const parseSiteResult = await parseSite(addon);
-            if (!parseSiteResult.success) {
-                if (parseSiteResult.error.includes('page does not exist')) {
-                    return res.errorResponse(400, parseSiteResult.error);
-                }
-                return res.errorResponse(500, parseSiteResult.error);
+            const result1 = await parseSite(addon.toLocaleLowerCase());
+            if (!result1.success) {
+                const code = result1.error.includes('page does not exist') ? 400 : 500;
+                return res.errorResponse(code, result1.error);
             }
-            return res.successResponse(parseSiteResult.result);
+            const curseJson = result1.result;
+            const pure = url.searchParams.get('pure');
+            if (pure && pure.toLowerCase() === 'true') {
+                return res.successResponse(curseJson);
+            }
+            const result2 = createCurseObject(curseJson);
+            if (!result2.success) {
+                return res.errorResponse(500, result2.error);
+            }
+            const curseObject = result2.result;
+            const result3 = validateCurseObject(curseObject);
+            if (!result3.success) {
+                return res.errorResponse(500, result3.error);
+            }
+            const result4 = createAddonObject(curseObject);
+            if (!result4.success) {
+                return res.errorResponse(500, result4.error);
+            }
+            const addonObject = result4.result;
+            return res.successResponse(addonObject);
         }
         else {
             sendResponse(res, 404);
         }
     });
-    server.listen(3000, '127.0.0.1');
+    server.listen(8000, '127.0.0.1');
 }
 
 function extendResponse(res) {

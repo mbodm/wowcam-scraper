@@ -1,9 +1,9 @@
 import { createSuccess } from './results.js';
 import { createError } from './results.js';
 
-export function createCurseObject(json) {
+export function createCurseObject(curseJson) {
     try {
-        const o = JSON.parse(json);
+        const o = JSON.parse(curseJson);
         return createSuccess(o);
     }
     catch (e) {
