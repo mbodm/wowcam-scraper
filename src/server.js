@@ -29,39 +29,36 @@ export function run() {
             }
         }
         else if (req.url.startsWith('/run')) {
-            extendResponse(res);
-            const host = req.headers.host.trimEnd('/');
-            const path = req.url.trimEnd('/');
-            const url = new URL(`http://${host}${path}`);
+            const url = createUrlObject(req);
             const addon = url.searchParams.get('addon');
             if (!addon) {
-                return res.errorResponse(400, 'Missing "addon" query parameter in request URL.');
+                return errorResponse(res, 400, 'Missing "addon" query parameter in request URL.');
             }
             const result1 = await parseSite(addon.toLocaleLowerCase());
             if (!result1.success) {
                 const code = result1.error.includes('page does not exist') ? 400 : 500;
-                return res.errorResponse(code, result1.error);
+                return errorResponse(res, code, result1.error);
             }
             const curseJson = result1.result;
             const pure = url.searchParams.get('pure');
             if (pure && pure.toLowerCase() === 'true') {
-                return res.successResponse(curseJson);
+                return successResponse(res, curseJson);
             }
             const result2 = createCurseObject(curseJson);
             if (!result2.success) {
-                return res.errorResponse(500, result2.error);
+                return errorResponse(res, 500, result2.error);
             }
             const curseObject = result2.result;
             const result3 = validateCurseObject(curseObject);
             if (!result3.success) {
-                return res.errorResponse(500, result3.error);
+                return errorResponse(res, 500, result3.error);
             }
             const result4 = createAddonObject(curseObject);
             if (!result4.success) {
-                return res.errorResponse(500, result4.error);
+                return errorResponse(res, 500, result4.error);
             }
             const addonObject = result4.result;
-            return res.successResponse(addonObject);
+            return successResponse(res, addonObject);
         }
         else {
             sendResponse(res, 404);
@@ -70,14 +67,13 @@ export function run() {
     server.listen(8000, '127.0.0.1');
 }
 
-function extendResponse(res) {
-    res.successResponse = function (result) {
-        sendResponse(this, 200, { success: true, result, error: '', status: createPrettyStatus(200) });
-    };
-    res.errorResponse = function (status, error) {
-        sendResponse(this, status, { success: false, result: null, error, status: createPrettyStatus(status) });
-    };
-}
+function successResponse(req, result) {
+    sendResponse(req, 200, { success: true, result, error: '', status: createPrettyStatus(200) });
+};
+
+function errorResponse(req, status, error) {
+    sendResponse(req, status, { success: false, result: null, error, status: createPrettyStatus(status) });
+};
 
 function sendResponse(res, status, content) {
     res.statusCode = status;
@@ -101,4 +97,9 @@ function createPrettyStatus(status) {
         default:
             return 'UNKNOWN';
     }
+}
+
+function createUrlObject(req) {
+    // See Node.js documentation -> https://nodejs.org/api/http.html#class-httpincomingmessage
+    return new URL(`http://${process.env.HOST ?? 'localhost'}${req.url}`);
 }
