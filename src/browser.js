@@ -2,6 +2,10 @@ import { launch } from 'puppeteer';
 import { createError } from './results.js';
 import { createSuccess } from './results.js';
 
+/**
+ * @param {string} addonSlug
+ * @returns {object}
+ */
 export async function parseSite(addonSlug) {
     let browser;
     try {
@@ -31,22 +35,19 @@ export async function parseSite(addonSlug) {
     }
     let json;
     try {
-        const elementWhenErrorPage = await page.$('.error-description');
-        if (elementWhenErrorPage) {
-            const contentWhenErrorPage = await page.evaluate((el) => el.textContent, elementWhenErrorPage);
-            if (contentWhenErrorPage && contentWhenErrorPage.includes('404')) {
-                return createError('It seems like the addon page does not exist (maybe your given addon name is invalid).');
-            }
+        const addonPageNotExists = await is404ErrorPage(page);
+        if (addonPageNotExists) {
+            return createError('It seems like the addon page does not exist (maybe the given addon param is invalid).');
         }
         const element = await page.$('script#__NEXT_DATA__');
         if (!element) {
             return createError('Could not found JSON script element in page.')
         }
-        const content = await page.evaluate((el) => el.textContent, element);
-        if (!content) {
-            return createError('Found JSON script element in page, but the element\'s content was empty.');
+        const text = await page.evaluate(el => el.textContent, element);
+        if (!text) {
+            return createError('Found JSON script element in page, but the element was empty.');
         }
-        json = content;
+        json = text;
     }
     catch (e) {
         console.log(e);
@@ -54,4 +55,20 @@ export async function parseSite(addonSlug) {
     }
     await browser.close();
     return createSuccess(json);
+}
+
+/**
+ * @param {any} page
+ * @returns {Promise<boolean>}
+ */
+async function is404ErrorPage(page) {
+    const element = await page.$('.error-description');
+    if (!element) {
+        return false;
+    }
+    const text = await page.evaluate(el => el.textContent, element) ?? '';
+    if (!text.includes('404')) {
+        return false;
+    }
+    return true;
 }

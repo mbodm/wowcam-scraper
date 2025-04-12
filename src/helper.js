@@ -1,11 +1,41 @@
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-export function getCurrentFolderPath() {
-    // See -> https://medium.com/@kishantashok/understanding-dirname-in-es-modules-solutions-for-modern-node-js-9d0560eb5ed7
-    return path.dirname(fileURLToPath(import.meta.url));
+/**
+ * @returns {string}
+ */
+export function getModuleFolderPath() {
+    const moduleFile = fileURLToPath(import.meta.url);
+    const moduleFolder = path.dirname(moduleFile);
+    return path.resolve(moduleFolder);
 }
 
-export function getFaviconFilePath() {
-    return path.join(getCurrentFolderPath(), '../', 'favicon.ico');
+/**
+ * @returns {string}
+ */
+export function getProjectFolderPath() {
+    const rootFolder = process.cwd();
+    return path.resolve(rootFolder);
+}
+
+/**
+ * @param {string} protocol
+ * @param {string} host
+ * @param {string} path
+ * @returns {URL}
+ */
+export function createUrl(protocol, host, path) {
+    if (!protocol) {
+        protocol = 'http';
+    }
+    if (!host) {
+        host = 'localhost';
+    }
+    if (!path) {
+        path = '/';
+    }
+    else {
+        path = path[0] === '/' ? path : `/${path}`;
+    }
+    return new URL(`${protocol}://${host}${path}`);
 }
