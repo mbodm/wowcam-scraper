@@ -1,13 +1,3 @@
-import path from 'node:path';
-
-/**
- * @returns {string}
- */
-export function getProjectFolderPath() {
-    const rootFolder = process.cwd();
-    return path.resolve(rootFolder);
-}
-
 /**
  * @param {string} protocol
  * @param {string} host

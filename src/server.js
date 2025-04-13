@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { sayHello, sendFavicon, scrapeCurse } from './routes.js';
+import { sayHello, scrapeCurse } from './routes.js';
 
 export function start() {
     const server = createServer(async (req, res) => {
@@ -14,10 +14,7 @@ export function start() {
         if (req.url === '/') {
             sayHello(res);
         }
-        else if (req.url === '/favicon.ico') {
-            sendFavicon(res);
-        }
-        else if (req.url.startsWith('/wowcam')) {
+        else if (req.url.startsWith('/scrape')) {
             scrapeCurse(req, res);
         }
         else {

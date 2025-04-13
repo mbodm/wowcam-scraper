@@ -1,7 +1,5 @@
-import path from 'node:path';
 import { ServerResponse, IncomingMessage } from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { getProjectFolderPath, createUrl } from './helper.js';
+import { createUrl } from './helper.js';
 import { parseSite } from './browser.js';
 import { createObject } from './curse.js';
 
@@ -12,28 +10,6 @@ export function sayHello(response) {
     response.setHeader('Content-Type', 'text/plain');
     response.statusCode = 200;
     response.end('hello');
-}
-
-/**
- * @param {ServerResponse<IncomingMessage>} response
- */
-export async function sendFavicon(response) {
-    try {
-        const file = path.join(getProjectFolderPath(), 'favicon.ico');
-        const buffer = await readFile(file);
-        response.statusCode = 200;
-        response.end(buffer);
-    } catch (e) {
-        if (e.code == 'ENOENT') {
-            response.statusCode = 404;
-            response.end();
-        }
-        else {
-            console.log(e);
-            response.statusCode = 500;
-            response.end();
-        }
-    }
 }
 
 /**
