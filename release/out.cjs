@@ -3576,11 +3576,11 @@ function evaluationString(fun, ...args) {
   }
   return `(${fun})(${args.map(serializeArgument).join(",")})`;
 }
-async function getReadableAsTypedArray(readable, path12) {
+async function getReadableAsTypedArray(readable, path10) {
   const buffers = [];
   const reader = readable.getReader();
-  if (path12) {
-    const fileHandle = await environment.value.fs.promises.open(path12, "w+");
+  if (path10) {
+    const fileHandle = await environment.value.fs.promises.open(path10, "w+");
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -8377,13 +8377,13 @@ var init_Frame = __esm({
          */
         async addScriptTag(options) {
           let { content = "", type } = options;
-          const { path: path12 } = options;
-          if (+!!options.url + +!!path12 + +!!content !== 1) {
+          const { path: path10 } = options;
+          if (+!!options.url + +!!path10 + +!!content !== 1) {
             throw new Error("Exactly one of `url`, `path`, or `content` must be specified.");
           }
-          if (path12) {
-            content = await environment.value.fs.promises.readFile(path12, "utf8");
-            content += `//# sourceURL=${path12.replace(/\n/g, "")}`;
+          if (path10) {
+            content = await environment.value.fs.promises.readFile(path10, "utf8");
+            content += `//# sourceURL=${path10.replace(/\n/g, "")}`;
           }
           type = type ?? "text/javascript";
           return await this.mainRealm().transferHandle(await this.isolatedRealm().evaluateHandle(async ({ url, id, type: type2, content: content2 }) => {
@@ -8415,13 +8415,13 @@ var init_Frame = __esm({
          */
         async addStyleTag(options) {
           let { content = "" } = options;
-          const { path: path12 } = options;
-          if (+!!options.url + +!!path12 + +!!content !== 1) {
+          const { path: path10 } = options;
+          if (+!!options.url + +!!path10 + +!!content !== 1) {
             throw new Error("Exactly one of `url`, `path`, or `content` must be specified.");
           }
-          if (path12) {
-            content = await environment.value.fs.promises.readFile(path12, "utf8");
-            content += "/*# sourceURL=" + path12.replace(/\n/g, "") + "*/";
+          if (path10) {
+            content = await environment.value.fs.promises.readFile(path10, "utf8");
+            content += "/*# sourceURL=" + path10.replace(/\n/g, "") + "*/";
             options.content = content;
           }
           return await this.mainRealm().transferHandle(await this.isolatedRealm().evaluateHandle(async ({ url, content: content2 }) => {
@@ -10050,11 +10050,11 @@ var init_Page = __esm({
         /**
          * @internal
          */
-        async _maybeWriteTypedArrayToFile(path12, typedArray) {
-          if (!path12) {
+        async _maybeWriteTypedArrayToFile(path10, typedArray) {
+          if (!path10) {
             return;
           }
-          await environment.value.fs.promises.writeFile(path12, typedArray);
+          await environment.value.fs.promises.writeFile(path10, typedArray);
         }
         /**
          * Captures a screencast of this {@link Page | page}.
@@ -12515,7 +12515,7 @@ var init_Tracing = __esm({
           "disabled-by-default-devtools.timeline.stack",
           "disabled-by-default-v8.cpu_profiler"
         ];
-        const { path: path12, screenshots = false, categories = defaultCategories } = options;
+        const { path: path10, screenshots = false, categories = defaultCategories } = options;
         if (screenshots) {
           categories.push("disabled-by-default-devtools.screenshot");
         }
@@ -12527,7 +12527,7 @@ var init_Tracing = __esm({
         const includedCategories = categories.filter((cat) => {
           return !cat.startsWith("-");
         });
-        this.#path = path12;
+        this.#path = path10;
         this.#recording = true;
         await this.#client.send("Tracing.start", {
           transferMode: "ReturnAsStream",
@@ -15485,16 +15485,16 @@ var require_InputProcessor = __commonJS({
           }
           const { handle } = result2.result;
           (0, assert_js_1.assert)(handle !== void 0);
-          const { path: path12 } = await realm.cdpClient.sendCommand("DOM.getFileInfo", {
+          const { path: path10 } = await realm.cdpClient.sendCommand("DOM.getFileInfo", {
             objectId: handle
           });
-          paths.push(path12);
+          paths.push(path10);
           void realm.disown(handle).catch(void 0);
         }
         paths.sort();
         const sortedFiles = [...params.files].sort();
-        if (paths.length !== params.files.length || sortedFiles.some((path12, index) => {
-          return paths[index] !== path12;
+        if (paths.length !== params.files.length || sortedFiles.some((path10, index) => {
+          return paths[index] !== path10;
         })) {
           const { objectId } = await realm.deserializeForCdp(params.element);
           (0, assert_js_1.assert)(objectId !== void 0);
@@ -24701,13 +24701,13 @@ var init_ElementHandle2 = __esm({
           }
         }
         async uploadFile(...files) {
-          const path12 = environment.value.path;
-          if (path12) {
+          const path10 = environment.value.path;
+          if (path10) {
             files = files.map((file) => {
-              if (path12.win32.isAbsolute(file) || path12.posix.isAbsolute(file)) {
+              if (path10.win32.isAbsolute(file) || path10.posix.isAbsolute(file)) {
                 return file;
               } else {
-                return path12.resolve(file);
+                return path10.resolve(file);
               }
             });
           }
@@ -27472,7 +27472,7 @@ var init_Page2 = __esm({
           return this.#viewport;
         }
         async pdf(options = {}) {
-          const { timeout: ms = this._timeoutSettings.timeout(), path: path12 = void 0 } = options;
+          const { timeout: ms = this._timeoutSettings.timeout(), path: path10 = void 0 } = options;
           const { printBackground: background, margin, landscape, width, height, pageRanges: ranges, scale, preferCSSPageSize } = parsePDFOptions(options, "cm");
           const pageRanges = ranges ? ranges.split(", ") : [];
           await firstValueFrom(from(this.mainFrame().isolatedRealm().evaluate(() => {
@@ -27491,7 +27491,7 @@ var init_Page2 = __esm({
             shrinkToFit: !preferCSSPageSize
           })).pipe(raceWith(timeout(ms))));
           const typedArray = stringToTypedArray(data, true);
-          await this._maybeWriteTypedArrayToFile(path12, typedArray);
+          await this._maybeWriteTypedArrayToFile(path10, typedArray);
           return typedArray;
         }
         async createPDFStream(options) {
@@ -43262,8 +43262,8 @@ var require_Client = __commonJS({
       /**
        * Set the working directory.
        */
-      async cd(path12) {
-        const validPath = await this.protectWhitespace(path12);
+      async cd(path10) {
+        const validPath = await this.protectWhitespace(path10);
         return this.send("CWD " + validPath);
       }
       /**
@@ -43276,8 +43276,8 @@ var require_Client = __commonJS({
        * Get the last modified time of a file. This is not supported by every FTP server, in which case
        * calling this method will throw an exception.
        */
-      async lastMod(path12) {
-        const validPath = await this.protectWhitespace(path12);
+      async lastMod(path10) {
+        const validPath = await this.protectWhitespace(path10);
         const res = await this.send(`MDTM ${validPath}`);
         const date = res.message.slice(4);
         return (0, parseListMLSD_1.parseMLSxDate)(date);
@@ -43285,8 +43285,8 @@ var require_Client = __commonJS({
       /**
        * Get the size of a file.
        */
-      async size(path12) {
-        const validPath = await this.protectWhitespace(path12);
+      async size(path10) {
+        const validPath = await this.protectWhitespace(path10);
         const command2 = `SIZE ${validPath}`;
         const res = await this.send(command2);
         const size = parseInt(res.message.slice(4), 10);
@@ -43313,8 +43313,8 @@ var require_Client = __commonJS({
        * You can ignore FTP error return codes which won't throw an exception if e.g.
        * the file doesn't exist.
        */
-      async remove(path12, ignoreErrorCodes = false) {
-        const validPath = await this.protectWhitespace(path12);
+      async remove(path10, ignoreErrorCodes = false) {
+        const validPath = await this.protectWhitespace(path10);
         if (ignoreErrorCodes) {
           return this.sendIgnoringError(`DELE ${validPath}`);
         }
@@ -43468,8 +43468,8 @@ var require_Client = __commonJS({
        *
        * @param [path]  Path to remote file or directory.
        */
-      async list(path12 = "") {
-        const validPath = await this.protectWhitespace(path12);
+      async list(path10 = "") {
+        const validPath = await this.protectWhitespace(path10);
         let lastError;
         for (const candidate of this.availableListCommands) {
           const command2 = validPath === "" ? candidate : `${candidate} ${validPath}`;
@@ -43633,21 +43633,21 @@ var require_Client = __commonJS({
       /**
        * Remove an empty directory, will fail if not empty.
        */
-      async removeEmptyDir(path12) {
-        const validPath = await this.protectWhitespace(path12);
+      async removeEmptyDir(path10) {
+        const validPath = await this.protectWhitespace(path10);
         return this.send(`RMD ${validPath}`);
       }
       /**
        * FTP servers can't handle filenames that have leading whitespace. This method transforms
        * a given path to fix that issue for most cases.
        */
-      async protectWhitespace(path12) {
-        if (!path12.startsWith(" ")) {
-          return path12;
+      async protectWhitespace(path10) {
+        if (!path10.startsWith(" ")) {
+          return path10;
         }
         const pwd = await this.pwd();
         const absolutePathPrefix = pwd.endsWith("/") ? pwd : pwd + "/";
-        return absolutePathPrefix + path12;
+        return absolutePathPrefix + path10;
       }
       async _exitAtCurrentDirectory(func) {
         const userDir = await this.pwd();
@@ -43724,11 +43724,11 @@ var require_Client = __commonJS({
       }
     };
     exports2.Client = Client;
-    async function ensureLocalDirectory(path12) {
+    async function ensureLocalDirectory(path10) {
       try {
-        await fsStat(path12);
+        await fsStat(path10);
       } catch (err) {
-        await fsMkDir(path12, { recursive: true });
+        await fsMkDir(path10, { recursive: true });
       }
     }
     async function ignoreError(func) {
@@ -44322,23 +44322,23 @@ var require_estraverse = __commonJS({
           return false;
         }
       };
-      function Element2(node, path12, wrap2, ref) {
+      function Element2(node, path10, wrap2, ref) {
         this.node = node;
-        this.path = path12;
+        this.path = path10;
         this.wrap = wrap2;
         this.ref = ref;
       }
       function Controller() {
       }
-      Controller.prototype.path = function path12() {
+      Controller.prototype.path = function path10() {
         var i, iz, j, jz, result, element;
-        function addToPath(result2, path13) {
-          if (Array.isArray(path13)) {
-            for (j = 0, jz = path13.length; j < jz; ++j) {
-              result2.push(path13[j]);
+        function addToPath(result2, path11) {
+          if (Array.isArray(path11)) {
+            for (j = 0, jz = path11.length; j < jz; ++j) {
+              result2.push(path11[j]);
             }
           } else {
-            result2.push(path13);
+            result2.push(path11);
           }
         }
         if (!this.__current.path) {
@@ -45223,16 +45223,16 @@ var require_util2 = __commonJS({
     }
     exports2.urlGenerate = urlGenerate;
     function normalize2(aPath) {
-      var path12 = aPath;
+      var path10 = aPath;
       var url = urlParse(aPath);
       if (url) {
         if (!url.path) {
           return aPath;
         }
-        path12 = url.path;
+        path10 = url.path;
       }
-      var isAbsolute = exports2.isAbsolute(path12);
-      var parts = path12.split(/\/+/);
+      var isAbsolute = exports2.isAbsolute(path10);
+      var parts = path10.split(/\/+/);
       for (var part, up = 0, i = parts.length - 1; i >= 0; i--) {
         part = parts[i];
         if (part === ".") {
@@ -45249,15 +45249,15 @@ var require_util2 = __commonJS({
           }
         }
       }
-      path12 = parts.join("/");
-      if (path12 === "") {
-        path12 = isAbsolute ? "/" : ".";
+      path10 = parts.join("/");
+      if (path10 === "") {
+        path10 = isAbsolute ? "/" : ".";
       }
       if (url) {
-        url.path = path12;
+        url.path = path10;
         return urlGenerate(url);
       }
-      return path12;
+      return path10;
     }
     exports2.normalize = normalize2;
     function join3(aRoot, aPath) {
@@ -55641,13 +55641,13 @@ function __disposeResources20(env2) {
   }
   return next();
 }
-function __rewriteRelativeImportExtension(path12, preserveJsx) {
-  if (typeof path12 === "string" && /^\.\.?\//.test(path12)) {
-    return path12.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
+function __rewriteRelativeImportExtension(path10, preserveJsx) {
+  if (typeof path10 === "string" && /^\.\.?\//.test(path10)) {
+    return path10.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
       return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
     });
   }
-  return path12;
+  return path10;
 }
 var extendStatics2, __assign, __createBinding, __setModuleDefault, ownKeys, _SuppressedError, tslib_es6_default;
 var init_tslib_es6 = __esm({
@@ -56454,16 +56454,16 @@ var require_path = __commonJS({
         this.__childCache = null;
       };
       var Pp = Path.prototype;
-      function getChildCache(path12) {
-        return path12.__childCache || (path12.__childCache = /* @__PURE__ */ Object.create(null));
+      function getChildCache(path10) {
+        return path10.__childCache || (path10.__childCache = /* @__PURE__ */ Object.create(null));
       }
-      function getChildPath(path12, name) {
-        var cache = getChildCache(path12);
-        var actualChildValue = path12.getValueProperty(name);
+      function getChildPath(path10, name) {
+        var cache = getChildCache(path10);
+        var actualChildValue = path10.getValueProperty(name);
         var childPath = cache[name];
         if (!hasOwn.call(cache, name) || // Ensure consistency between cache and reality.
         childPath.value !== actualChildValue) {
-          childPath = cache[name] = new path12.constructor(actualChildValue, path12, name);
+          childPath = cache[name] = new path10.constructor(actualChildValue, path10, name);
         }
         return childPath;
       }
@@ -56475,12 +56475,12 @@ var require_path = __commonJS({
         for (var _i = 0; _i < arguments.length; _i++) {
           names[_i] = arguments[_i];
         }
-        var path12 = this;
+        var path10 = this;
         var count = names.length;
         for (var i = 0; i < count; ++i) {
-          path12 = getChildPath(path12, names[i]);
+          path10 = getChildPath(path10, names[i]);
         }
-        return path12;
+        return path10;
       };
       Pp.each = function each(callback, context2) {
         var childPaths = [];
@@ -56516,12 +56516,12 @@ var require_path = __commonJS({
       };
       function emptyMoves() {
       }
-      function getMoves(path12, offset, start2, end) {
-        isArray4.assert(path12.value);
+      function getMoves(path10, offset, start2, end) {
+        isArray4.assert(path10.value);
         if (offset === 0) {
           return emptyMoves;
         }
-        var length = path12.value.length;
+        var length = path10.value.length;
         if (length < 1) {
           return emptyMoves;
         }
@@ -56539,10 +56539,10 @@ var require_path = __commonJS({
         isNumber2.assert(start2);
         isNumber2.assert(end);
         var moves = /* @__PURE__ */ Object.create(null);
-        var cache = getChildCache(path12);
+        var cache = getChildCache(path10);
         for (var i = start2; i < end; ++i) {
-          if (hasOwn.call(path12.value, i)) {
-            var childPath = path12.get(i);
+          if (hasOwn.call(path10.value, i)) {
+            var childPath = path10.get(i);
             if (childPath.name !== i) {
               throw new Error("");
             }
@@ -56560,7 +56560,7 @@ var require_path = __commonJS({
               throw new Error("");
             }
             cache[newIndex2] = childPath2;
-            path12.value[newIndex2] = childPath2.value;
+            path10.value[newIndex2] = childPath2.value;
           }
         };
       }
@@ -56635,34 +56635,34 @@ var require_path = __commonJS({
         }
         return pp.insertAt.apply(pp, insertAtArgs);
       };
-      function repairRelationshipWithParent(path12) {
-        if (!(path12 instanceof Path)) {
+      function repairRelationshipWithParent(path10) {
+        if (!(path10 instanceof Path)) {
           throw new Error("");
         }
-        var pp = path12.parentPath;
+        var pp = path10.parentPath;
         if (!pp) {
-          return path12;
+          return path10;
         }
         var parentValue = pp.value;
         var parentCache = getChildCache(pp);
-        if (parentValue[path12.name] === path12.value) {
-          parentCache[path12.name] = path12;
+        if (parentValue[path10.name] === path10.value) {
+          parentCache[path10.name] = path10;
         } else if (isArray4.check(parentValue)) {
-          var i = parentValue.indexOf(path12.value);
+          var i = parentValue.indexOf(path10.value);
           if (i >= 0) {
-            parentCache[path12.name = i] = path12;
+            parentCache[path10.name = i] = path10;
           }
         } else {
-          parentValue[path12.name] = path12.value;
-          parentCache[path12.name] = path12;
+          parentValue[path10.name] = path10.value;
+          parentCache[path10.name] = path10;
         }
-        if (parentValue[path12.name] !== path12.value) {
+        if (parentValue[path10.name] !== path10.value) {
           throw new Error("");
         }
-        if (path12.parentPath.get(path12.name) !== path12) {
+        if (path10.parentPath.get(path10.name) !== path10) {
           throw new Error("");
         }
-        return path12;
+        return path10;
       }
       Pp.replace = function replace(replacement) {
         var results = [];
@@ -56742,11 +56742,11 @@ var require_scope = __commonJS({
       var Expression = namedTypes.Expression;
       var isArray4 = types.builtInTypes.array;
       var b = types.builders;
-      var Scope = function Scope2(path12, parentScope) {
+      var Scope = function Scope2(path10, parentScope) {
         if (!(this instanceof Scope2)) {
           throw new Error("Scope constructor cannot be invoked without 'new'");
         }
-        ScopeType.assert(path12.value);
+        ScopeType.assert(path10.value);
         var depth;
         if (parentScope) {
           if (!(parentScope instanceof Scope2)) {
@@ -56758,8 +56758,8 @@ var require_scope = __commonJS({
           depth = 0;
         }
         Object.defineProperties(this, {
-          path: { value: path12 },
-          node: { value: path12.value },
+          path: { value: path10 },
+          node: { value: path10.value },
           isGlobal: { value: !parentScope, enumerable: true },
           depth: { value: depth },
           parent: { value: parentScope },
@@ -56834,50 +56834,50 @@ var require_scope = __commonJS({
         this.scan();
         return this.types;
       };
-      function scanScope(path12, bindings, scopeTypes2) {
-        var node = path12.value;
+      function scanScope(path10, bindings, scopeTypes2) {
+        var node = path10.value;
         ScopeType.assert(node);
         if (namedTypes.CatchClause.check(node)) {
-          var param = path12.get("param");
+          var param = path10.get("param");
           if (param.value) {
             addPattern(param, bindings);
           }
         } else {
-          recursiveScanScope(path12, bindings, scopeTypes2);
+          recursiveScanScope(path10, bindings, scopeTypes2);
         }
       }
-      function recursiveScanScope(path12, bindings, scopeTypes2) {
-        var node = path12.value;
-        if (path12.parent && namedTypes.FunctionExpression.check(path12.parent.node) && path12.parent.node.id) {
-          addPattern(path12.parent.get("id"), bindings);
+      function recursiveScanScope(path10, bindings, scopeTypes2) {
+        var node = path10.value;
+        if (path10.parent && namedTypes.FunctionExpression.check(path10.parent.node) && path10.parent.node.id) {
+          addPattern(path10.parent.get("id"), bindings);
         }
         if (!node) {
         } else if (isArray4.check(node)) {
-          path12.each(function(childPath) {
+          path10.each(function(childPath) {
             recursiveScanChild(childPath, bindings, scopeTypes2);
           });
         } else if (namedTypes.Function.check(node)) {
-          path12.get("params").each(function(paramPath) {
+          path10.get("params").each(function(paramPath) {
             addPattern(paramPath, bindings);
           });
-          recursiveScanChild(path12.get("body"), bindings, scopeTypes2);
+          recursiveScanChild(path10.get("body"), bindings, scopeTypes2);
         } else if (namedTypes.TypeAlias && namedTypes.TypeAlias.check(node) || namedTypes.InterfaceDeclaration && namedTypes.InterfaceDeclaration.check(node) || namedTypes.TSTypeAliasDeclaration && namedTypes.TSTypeAliasDeclaration.check(node) || namedTypes.TSInterfaceDeclaration && namedTypes.TSInterfaceDeclaration.check(node)) {
-          addTypePattern(path12.get("id"), scopeTypes2);
+          addTypePattern(path10.get("id"), scopeTypes2);
         } else if (namedTypes.VariableDeclarator.check(node)) {
-          addPattern(path12.get("id"), bindings);
-          recursiveScanChild(path12.get("init"), bindings, scopeTypes2);
+          addPattern(path10.get("id"), bindings);
+          recursiveScanChild(path10.get("init"), bindings, scopeTypes2);
         } else if (node.type === "ImportSpecifier" || node.type === "ImportNamespaceSpecifier" || node.type === "ImportDefaultSpecifier") {
           addPattern(
             // Esprima used to use the .name field to refer to the local
             // binding identifier for ImportSpecifier nodes, but .id for
             // ImportNamespaceSpecifier and ImportDefaultSpecifier nodes.
             // ESTree/Acorn/ESpree use .local for all three node types.
-            path12.get(node.local ? "local" : node.name ? "name" : "id"),
+            path10.get(node.local ? "local" : node.name ? "name" : "id"),
             bindings
           );
         } else if (Node2.check(node) && !Expression.check(node)) {
           types.eachField(node, function(name, child) {
-            var childPath = path12.get(name);
+            var childPath = path10.get(name);
             if (!pathHasValue(childPath, child)) {
               throw new Error("");
             }
@@ -56885,34 +56885,34 @@ var require_scope = __commonJS({
           });
         }
       }
-      function pathHasValue(path12, value) {
-        if (path12.value === value) {
+      function pathHasValue(path10, value) {
+        if (path10.value === value) {
           return true;
         }
-        if (Array.isArray(path12.value) && path12.value.length === 0 && Array.isArray(value) && value.length === 0) {
+        if (Array.isArray(path10.value) && path10.value.length === 0 && Array.isArray(value) && value.length === 0) {
           return true;
         }
         return false;
       }
-      function recursiveScanChild(path12, bindings, scopeTypes2) {
-        var node = path12.value;
+      function recursiveScanChild(path10, bindings, scopeTypes2) {
+        var node = path10.value;
         if (!node || Expression.check(node)) {
         } else if (namedTypes.FunctionDeclaration.check(node) && node.id !== null) {
-          addPattern(path12.get("id"), bindings);
+          addPattern(path10.get("id"), bindings);
         } else if (namedTypes.ClassDeclaration && namedTypes.ClassDeclaration.check(node)) {
-          addPattern(path12.get("id"), bindings);
+          addPattern(path10.get("id"), bindings);
         } else if (ScopeType.check(node)) {
           if (namedTypes.CatchClause.check(node) && // TODO Broaden this to accept any pattern.
           namedTypes.Identifier.check(node.param)) {
             var catchParamName = node.param.name;
             var hadBinding = hasOwn.call(bindings, catchParamName);
-            recursiveScanScope(path12.get("body"), bindings, scopeTypes2);
+            recursiveScanScope(path10.get("body"), bindings, scopeTypes2);
             if (!hadBinding) {
               delete bindings[catchParamName];
             }
           }
         } else {
-          recursiveScanScope(path12, bindings, scopeTypes2);
+          recursiveScanScope(path10, bindings, scopeTypes2);
         }
       }
       function addPattern(patternPath, bindings) {
@@ -57248,53 +57248,53 @@ var require_node_path = __commonJS({
       NPp.firstInStatement = function() {
         return firstInStatement(this);
       };
-      function firstInStatement(path12) {
-        for (var node, parent; path12.parent; path12 = path12.parent) {
-          node = path12.node;
-          parent = path12.parent.node;
-          if (n.BlockStatement.check(parent) && path12.parent.name === "body" && path12.name === 0) {
+      function firstInStatement(path10) {
+        for (var node, parent; path10.parent; path10 = path10.parent) {
+          node = path10.node;
+          parent = path10.parent.node;
+          if (n.BlockStatement.check(parent) && path10.parent.name === "body" && path10.name === 0) {
             if (parent.body[0] !== node) {
               throw new Error("Nodes must be equal");
             }
             return true;
           }
-          if (n.ExpressionStatement.check(parent) && path12.name === "expression") {
+          if (n.ExpressionStatement.check(parent) && path10.name === "expression") {
             if (parent.expression !== node) {
               throw new Error("Nodes must be equal");
             }
             return true;
           }
-          if (n.SequenceExpression.check(parent) && path12.parent.name === "expressions" && path12.name === 0) {
+          if (n.SequenceExpression.check(parent) && path10.parent.name === "expressions" && path10.name === 0) {
             if (parent.expressions[0] !== node) {
               throw new Error("Nodes must be equal");
             }
             continue;
           }
-          if (n.CallExpression.check(parent) && path12.name === "callee") {
+          if (n.CallExpression.check(parent) && path10.name === "callee") {
             if (parent.callee !== node) {
               throw new Error("Nodes must be equal");
             }
             continue;
           }
-          if (n.MemberExpression.check(parent) && path12.name === "object") {
+          if (n.MemberExpression.check(parent) && path10.name === "object") {
             if (parent.object !== node) {
               throw new Error("Nodes must be equal");
             }
             continue;
           }
-          if (n.ConditionalExpression.check(parent) && path12.name === "test") {
+          if (n.ConditionalExpression.check(parent) && path10.name === "test") {
             if (parent.test !== node) {
               throw new Error("Nodes must be equal");
             }
             continue;
           }
-          if (isBinary(parent) && path12.name === "left") {
+          if (isBinary(parent) && path10.name === "left") {
             if (parent.left !== node) {
               throw new Error("Nodes must be equal");
             }
             continue;
           }
-          if (n.UnaryExpression.check(parent) && !parent.prefix && path12.name === "argument") {
+          if (n.UnaryExpression.check(parent) && !parent.prefix && path10.name === "argument") {
             if (parent.argument !== node) {
               throw new Error("Nodes must be equal");
             }
@@ -57464,36 +57464,36 @@ var require_path_visitor = __commonJS({
       };
       PVp.reset = function(_path) {
       };
-      PVp.visitWithoutReset = function(path12) {
+      PVp.visitWithoutReset = function(path10) {
         if (this instanceof this.Context) {
-          return this.visitor.visitWithoutReset(path12);
+          return this.visitor.visitWithoutReset(path10);
         }
-        if (!(path12 instanceof NodePath)) {
+        if (!(path10 instanceof NodePath)) {
           throw new Error("");
         }
-        var value = path12.value;
+        var value = path10.value;
         var methodName = value && typeof value === "object" && typeof value.type === "string" && this._methodNameTable[value.type];
         if (methodName) {
-          var context2 = this.acquireContext(path12);
+          var context2 = this.acquireContext(path10);
           try {
             return context2.invokeVisitorMethod(methodName);
           } finally {
             this.releaseContext(context2);
           }
         } else {
-          return visitChildren(path12, this);
+          return visitChildren(path10, this);
         }
       };
-      function visitChildren(path12, visitor) {
-        if (!(path12 instanceof NodePath)) {
+      function visitChildren(path10, visitor) {
+        if (!(path10 instanceof NodePath)) {
           throw new Error("");
         }
         if (!(visitor instanceof PathVisitor)) {
           throw new Error("");
         }
-        var value = path12.value;
+        var value = path10.value;
         if (isArray4.check(value)) {
-          path12.each(visitor.visitWithoutReset, visitor);
+          path10.each(visitor.visitWithoutReset, visitor);
         } else if (!isObject.check(value)) {
         } else {
           var childNames = types.getFieldNames(value);
@@ -57507,19 +57507,19 @@ var require_path_visitor = __commonJS({
             if (!hasOwn.call(value, childName)) {
               value[childName] = types.getFieldValue(value, childName);
             }
-            childPaths.push(path12.get(childName));
+            childPaths.push(path10.get(childName));
           }
           for (var i = 0; i < childCount; ++i) {
             visitor.visitWithoutReset(childPaths[i]);
           }
         }
-        return path12.value;
+        return path10.value;
       }
-      PVp.acquireContext = function(path12) {
+      PVp.acquireContext = function(path10) {
         if (this._reusableContextStack.length === 0) {
-          return new this.Context(path12);
+          return new this.Context(path10);
         }
-        return this._reusableContextStack.pop().reset(path12);
+        return this._reusableContextStack.pop().reset(path10);
       };
       PVp.releaseContext = function(context2) {
         if (!(context2 instanceof this.Context)) {
@@ -57535,14 +57535,14 @@ var require_path_visitor = __commonJS({
         return this._changeReported;
       };
       function makeContextConstructor(visitor) {
-        function Context(path12) {
+        function Context(path10) {
           if (!(this instanceof Context)) {
             throw new Error("");
           }
           if (!(this instanceof PathVisitor)) {
             throw new Error("");
           }
-          if (!(path12 instanceof NodePath)) {
+          if (!(path10 instanceof NodePath)) {
             throw new Error("");
           }
           Object.defineProperty(this, "visitor", {
@@ -57551,7 +57551,7 @@ var require_path_visitor = __commonJS({
             enumerable: true,
             configurable: false
           });
-          this.currentPath = path12;
+          this.currentPath = path10;
           this.needToCallTraverse = true;
           Object.seal(this);
         }
@@ -57564,14 +57564,14 @@ var require_path_visitor = __commonJS({
         return Context;
       }
       var sharedContextProtoMethods = /* @__PURE__ */ Object.create(null);
-      sharedContextProtoMethods.reset = function reset(path12) {
+      sharedContextProtoMethods.reset = function reset(path10) {
         if (!(this instanceof this.Context)) {
           throw new Error("");
         }
-        if (!(path12 instanceof NodePath)) {
+        if (!(path10 instanceof NodePath)) {
           throw new Error("");
         }
-        this.currentPath = path12;
+        this.currentPath = path10;
         this.needToCallTraverse = true;
         return this;
       };
@@ -57594,34 +57594,34 @@ var require_path_visitor = __commonJS({
         if (this.needToCallTraverse !== false) {
           throw new Error("Must either call this.traverse or return false in " + methodName);
         }
-        var path12 = this.currentPath;
-        return path12 && path12.value;
+        var path10 = this.currentPath;
+        return path10 && path10.value;
       };
-      sharedContextProtoMethods.traverse = function traverse(path12, newVisitor) {
+      sharedContextProtoMethods.traverse = function traverse(path10, newVisitor) {
         if (!(this instanceof this.Context)) {
           throw new Error("");
         }
-        if (!(path12 instanceof NodePath)) {
+        if (!(path10 instanceof NodePath)) {
           throw new Error("");
         }
         if (!(this.currentPath instanceof NodePath)) {
           throw new Error("");
         }
         this.needToCallTraverse = false;
-        return visitChildren(path12, PathVisitor.fromMethodsObject(newVisitor || this.visitor));
+        return visitChildren(path10, PathVisitor.fromMethodsObject(newVisitor || this.visitor));
       };
-      sharedContextProtoMethods.visit = function visit(path12, newVisitor) {
+      sharedContextProtoMethods.visit = function visit(path10, newVisitor) {
         if (!(this instanceof this.Context)) {
           throw new Error("");
         }
-        if (!(path12 instanceof NodePath)) {
+        if (!(path10 instanceof NodePath)) {
           throw new Error("");
         }
         if (!(this.currentPath instanceof NodePath)) {
           throw new Error("");
         }
         this.needToCallTraverse = false;
-        return PathVisitor.fromMethodsObject(newVisitor || this.visitor).visitWithoutReset(path12);
+        return PathVisitor.fromMethodsObject(newVisitor || this.visitor).visitWithoutReset(path10);
       };
       sharedContextProtoMethods.reportChanged = function reportChanged() {
         this.visitor.reportChanged();
@@ -58835,10 +58835,10 @@ var require_degenerator = __commonJS({
       do {
         lastNamesLength = names.length;
         (0, ast_types_1.visit)(ast, {
-          visitVariableDeclaration(path12) {
-            if (path12.node.declarations) {
-              for (let i = 0; i < path12.node.declarations.length; i++) {
-                const declaration = path12.node.declarations[i];
+          visitVariableDeclaration(path10) {
+            if (path10.node.declarations) {
+              for (let i = 0; i < path10.node.declarations.length; i++) {
+                const declaration = path10.node.declarations[i];
                 if (ast_types_1.namedTypes.VariableDeclarator.check(declaration) && ast_types_1.namedTypes.Identifier.check(declaration.init) && ast_types_1.namedTypes.Identifier.check(declaration.id) && checkName(declaration.init.name, names) && !checkName(declaration.id.name, names)) {
                   names.push(declaration.id.name);
                 }
@@ -58846,18 +58846,18 @@ var require_degenerator = __commonJS({
             }
             return false;
           },
-          visitAssignmentExpression(path12) {
-            if (ast_types_1.namedTypes.Identifier.check(path12.node.left) && ast_types_1.namedTypes.Identifier.check(path12.node.right) && checkName(path12.node.right.name, names) && !checkName(path12.node.left.name, names)) {
-              names.push(path12.node.left.name);
+          visitAssignmentExpression(path10) {
+            if (ast_types_1.namedTypes.Identifier.check(path10.node.left) && ast_types_1.namedTypes.Identifier.check(path10.node.right) && checkName(path10.node.right.name, names) && !checkName(path10.node.left.name, names)) {
+              names.push(path10.node.left.name);
             }
             return false;
           },
-          visitFunction(path12) {
-            if (path12.node.id) {
+          visitFunction(path10) {
+            if (path10.node.id) {
               let shouldDegenerate = false;
-              (0, ast_types_1.visit)(path12.node, {
-                visitCallExpression(path13) {
-                  if (checkNames(path13.node, names)) {
+              (0, ast_types_1.visit)(path10.node, {
+                visitCallExpression(path11) {
+                  if (checkNames(path11.node, names)) {
                     shouldDegenerate = true;
                   }
                   return false;
@@ -58866,28 +58866,28 @@ var require_degenerator = __commonJS({
               if (!shouldDegenerate) {
                 return false;
               }
-              path12.node.async = true;
-              if (!checkName(path12.node.id.name, names)) {
-                names.push(path12.node.id.name);
+              path10.node.async = true;
+              if (!checkName(path10.node.id.name, names)) {
+                names.push(path10.node.id.name);
               }
             }
-            this.traverse(path12);
+            this.traverse(path10);
           }
         });
       } while (lastNamesLength !== names.length);
       (0, ast_types_1.visit)(ast, {
-        visitCallExpression(path12) {
-          if (checkNames(path12.node, names)) {
+        visitCallExpression(path10) {
+          if (checkNames(path10.node, names)) {
             const delegate = false;
-            const { name, parent: { node: pNode } } = path12;
-            const expr = ast_types_1.builders.awaitExpression(path12.node, delegate);
+            const { name, parent: { node: pNode } } = path10;
+            const expr = ast_types_1.builders.awaitExpression(path10.node, delegate);
             if (ast_types_1.namedTypes.CallExpression.check(pNode)) {
               pNode.arguments[name] = expr;
             } else {
               pNode[name] = expr;
             }
           }
-          this.traverse(path12);
+          this.traverse(path10);
         }
       });
       return (0, escodegen_1.generate)(ast);
@@ -63083,7 +63083,7 @@ var require_progress = __commonJS({
 var require_resolve_from = __commonJS({
   "node_modules/resolve-from/index.js"(exports2, module2) {
     "use strict";
-    var path12 = require("path");
+    var path10 = require("path");
     var Module = require("module");
     var fs6 = require("fs");
     var resolveFrom = (fromDir, moduleId, silent) => {
@@ -63097,14 +63097,14 @@ var require_resolve_from = __commonJS({
         fromDir = fs6.realpathSync(fromDir);
       } catch (err) {
         if (err.code === "ENOENT") {
-          fromDir = path12.resolve(fromDir);
+          fromDir = path10.resolve(fromDir);
         } else if (silent) {
           return null;
         } else {
           throw err;
         }
       }
-      const fromFile = path12.join(fromDir, "noop.js");
+      const fromFile = path10.join(fromDir, "noop.js");
       const resolveFileName = () => Module._resolveFilename(moduleId, {
         id: fromFile,
         filename: fromFile,
@@ -63176,7 +63176,7 @@ var require_parent_module = __commonJS({
 var require_import_fresh = __commonJS({
   "node_modules/import-fresh/index.js"(exports2, module2) {
     "use strict";
-    var path12 = require("path");
+    var path10 = require("path");
     var resolveFrom = require_resolve_from();
     var parentModule = require_parent_module();
     module2.exports = (moduleId) => {
@@ -63184,7 +63184,7 @@ var require_import_fresh = __commonJS({
         throw new TypeError("Expected a string");
       }
       const parentPath = parentModule(__filename);
-      const cwd = parentPath ? path12.dirname(parentPath) : __dirname;
+      const cwd = parentPath ? path10.dirname(parentPath) : __dirname;
       const filePath = resolveFrom(cwd, moduleId);
       const oldModule = require.cache[filePath];
       if (oldModule && oldModule.parent) {
@@ -66939,7 +66939,7 @@ ${error.message}`;
         return typescript.sys.fileExists(fileName);
       });
       if (filePath !== void 0) {
-        const { config: config2, error } = typescript.readConfigFile(filePath, (path12) => typescript.sys.readFile(path12));
+        const { config: config2, error } = typescript.readConfigFile(filePath, (path10) => typescript.sys.readFile(path10));
         if (error) {
           throw new Error(`Error in ${filePath}: ${error.messageText.toString()}`);
         }
@@ -67062,42 +67062,42 @@ var require_defaults = __commonJS({
 var require_env_paths = __commonJS({
   "node_modules/env-paths/index.js"(exports2, module2) {
     "use strict";
-    var path12 = require("path");
+    var path10 = require("path");
     var os8 = require("os");
     var homedir2 = os8.homedir();
     var tmpdir2 = os8.tmpdir();
     var { env: env2 } = process;
     var macos = (name) => {
-      const library = path12.join(homedir2, "Library");
+      const library = path10.join(homedir2, "Library");
       return {
-        data: path12.join(library, "Application Support", name),
-        config: path12.join(library, "Preferences", name),
-        cache: path12.join(library, "Caches", name),
-        log: path12.join(library, "Logs", name),
-        temp: path12.join(tmpdir2, name)
+        data: path10.join(library, "Application Support", name),
+        config: path10.join(library, "Preferences", name),
+        cache: path10.join(library, "Caches", name),
+        log: path10.join(library, "Logs", name),
+        temp: path10.join(tmpdir2, name)
       };
     };
     var windows = (name) => {
-      const appData = env2.APPDATA || path12.join(homedir2, "AppData", "Roaming");
-      const localAppData = env2.LOCALAPPDATA || path12.join(homedir2, "AppData", "Local");
+      const appData = env2.APPDATA || path10.join(homedir2, "AppData", "Roaming");
+      const localAppData = env2.LOCALAPPDATA || path10.join(homedir2, "AppData", "Local");
       return {
         // Data/config/cache/log are invented by me as Windows isn't opinionated about this
-        data: path12.join(localAppData, name, "Data"),
-        config: path12.join(appData, name, "Config"),
-        cache: path12.join(localAppData, name, "Cache"),
-        log: path12.join(localAppData, name, "Log"),
-        temp: path12.join(tmpdir2, name)
+        data: path10.join(localAppData, name, "Data"),
+        config: path10.join(appData, name, "Config"),
+        cache: path10.join(localAppData, name, "Cache"),
+        log: path10.join(localAppData, name, "Log"),
+        temp: path10.join(tmpdir2, name)
       };
     };
     var linux = (name) => {
-      const username = path12.basename(homedir2);
+      const username = path10.basename(homedir2);
       return {
-        data: path12.join(env2.XDG_DATA_HOME || path12.join(homedir2, ".local", "share"), name),
-        config: path12.join(env2.XDG_CONFIG_HOME || path12.join(homedir2, ".config"), name),
-        cache: path12.join(env2.XDG_CACHE_HOME || path12.join(homedir2, ".cache"), name),
+        data: path10.join(env2.XDG_DATA_HOME || path10.join(homedir2, ".local", "share"), name),
+        config: path10.join(env2.XDG_CONFIG_HOME || path10.join(homedir2, ".config"), name),
+        cache: path10.join(env2.XDG_CACHE_HOME || path10.join(homedir2, ".cache"), name),
         // https://wiki.debian.org/XDGBaseDirectorySpecification#state
-        log: path12.join(env2.XDG_STATE_HOME || path12.join(homedir2, ".local", "state"), name),
-        temp: path12.join(tmpdir2, username, name)
+        log: path10.join(env2.XDG_STATE_HOME || path10.join(homedir2, ".local", "state"), name),
+        temp: path10.join(tmpdir2, username, name)
       };
     };
     var envPaths = (name, options) => {
@@ -67165,11 +67165,11 @@ var require_util4 = __commonJS({
       return result;
     }
     exports2.emplace = emplace;
-    function getPropertyByPath(source2, path12) {
-      if (typeof path12 === "string" && Object.prototype.hasOwnProperty.call(source2, path12)) {
-        return source2[path12];
+    function getPropertyByPath(source2, path10) {
+      if (typeof path10 === "string" && Object.prototype.hasOwnProperty.call(source2, path10)) {
+        return source2[path10];
       }
-      const parsedPath = typeof path12 === "string" ? path12.split(".") : path12;
+      const parsedPath = typeof path10 === "string" ? path10.split(".") : path10;
       return parsedPath.reduce((previous, key) => {
         if (previous === void 0) {
           return previous;
@@ -67182,9 +67182,9 @@ var require_util4 = __commonJS({
       return Object.fromEntries(Object.entries(options).filter(([, value]) => value !== void 0));
     }
     exports2.removeUndefinedValuesFromObject = removeUndefinedValuesFromObject;
-    async function isDirectory(path12) {
+    async function isDirectory(path10) {
       try {
-        const stat = await fs_1.promises.stat(path12);
+        const stat = await fs_1.promises.stat(path10);
         return stat.isDirectory();
       } catch (e) {
         if (e.code === "ENOENT") {
@@ -67194,9 +67194,9 @@ var require_util4 = __commonJS({
       }
     }
     exports2.isDirectory = isDirectory;
-    function isDirectorySync(path12) {
+    function isDirectorySync(path10) {
       try {
-        const stat = fs_1.default.statSync(path12);
+        const stat = fs_1.default.statSync(path10);
         return stat.isDirectory();
       } catch (e) {
         if (e.code === "ENOENT") {
@@ -67294,7 +67294,7 @@ var require_ExplorerBase = __commonJS({
           const idx = importStack.indexOf(fullPath);
           if (idx !== -1) {
             throw new Error(`Circular import detected:
-${[...importStack, fullPath].map((path12, i) => `${i + 1}. ${path12}`).join("\n")} (same as ${idx + 1}.)`);
+${[...importStack, fullPath].map((path10, i) => `${i + 1}. ${path10}`).join("\n")} (same as ${idx + 1}.)`);
           }
         }
       }
@@ -67479,9 +67479,9 @@ var require_Explorer = __commonJS({
           throw error;
         }
       }
-      async #fileExists(path12) {
+      async #fileExists(path10) {
         try {
-          await promises_1.default.stat(path12);
+          await promises_1.default.stat(path10);
           return true;
         } catch (e) {
           return false;
@@ -67637,9 +67637,9 @@ var require_ExplorerSync = __commonJS({
           throw error;
         }
       }
-      #fileExists(path12) {
+      #fileExists(path10) {
         try {
-          fs_1.default.statSync(path12);
+          fs_1.default.statSync(path10);
           return true;
         } catch (e) {
           return false;
@@ -67759,7 +67759,7 @@ var require_dist12 = __commonJS({
       };
     }
     function getResolvedSearchPlaces(moduleName, toolDefinedSearchPlaces, userConfiguredOptions) {
-      const userConfiguredSearchPlaces = userConfiguredOptions.searchPlaces?.map((path12) => path12.replace("{name}", moduleName));
+      const userConfiguredSearchPlaces = userConfiguredOptions.searchPlaces?.map((path10) => path10.replace("{name}", moduleName));
       if (userConfiguredOptions.mergeSearchPlaces) {
         return [...userConfiguredSearchPlaces ?? [], ...toolDefinedSearchPlaces];
       }
@@ -67859,29 +67859,20 @@ var require_dist12 = __commonJS({
 // src/server.js
 var import_node_http = require("node:http");
 
-// src/routes.js
-var import_node_path13 = __toESM(require("node:path"), 1);
-var import_promises3 = require("node:fs/promises");
-
 // src/helper.js
-var import_node_path = __toESM(require("node:path"), 1);
-function getProjectFolderPath() {
-  const rootFolder = process.cwd();
-  return import_node_path.default.resolve(rootFolder);
-}
-function createUrl(protocol, host, path12) {
+function createUrl(protocol, host, path10) {
   if (!protocol) {
     protocol = "http";
   }
   if (!host) {
     host = "localhost";
   }
-  if (!path12) {
-    path12 = "/";
+  if (!path10) {
+    path10 = "/";
   } else {
-    path12 = path12[0] === "/" ? path12 : `/${path12}`;
+    path10 = path10[0] === "/" ? path10 : `/${path10}`;
   }
-  return new URL(`${protocol}://${host}${path12}`);
+  return new URL(`${protocol}://${host}${path10}`);
 }
 
 // node_modules/puppeteer-core/lib/esm/puppeteer/api/api.js
@@ -69059,13 +69050,13 @@ var CdpElementHandle = (() => {
         return element.multiple;
       });
       assert(files.length <= 1 || isMultiple, "Multiple file uploads only work with <input type=file multiple>");
-      const path12 = environment.value.path;
-      if (path12) {
+      const path10 = environment.value.path;
+      if (path10) {
         files = files.map((filePath) => {
-          if (path12.win32.isAbsolute(filePath) || path12.posix.isAbsolute(filePath)) {
+          if (path10.win32.isAbsolute(filePath) || path10.posix.isAbsolute(filePath)) {
             return filePath;
           } else {
-            return path12.resolve(filePath);
+            return path10.resolve(filePath);
           }
         });
       }
@@ -73170,9 +73161,9 @@ var CdpPage = class _CdpPage extends Page {
     return await getReadableFromProtocolStream(this.#primaryTargetClient, result.stream);
   }
   async pdf(options = {}) {
-    const { path: path12 = void 0 } = options;
+    const { path: path10 = void 0 } = options;
     const readable = await this.createPDFStream(options);
-    const typedArray = await getReadableAsTypedArray(readable, path12);
+    const typedArray = await getReadableAsTypedArray(readable, path10);
     assert(typedArray, "Could not create typed array");
     return typedArray;
   }
@@ -76027,7 +76018,7 @@ init_disposable();
 // node_modules/puppeteer-core/lib/esm/puppeteer/node/ChromeLauncher.js
 var import_promises = require("node:fs/promises");
 var import_node_os6 = __toESM(require("node:os"), 1);
-var import_node_path9 = __toESM(require("node:path"), 1);
+var import_node_path8 = __toESM(require("node:path"), 1);
 
 // node_modules/@puppeteer/browsers/lib/esm/launch.js
 var import_node_child_process = __toESM(require("node:child_process"), 1);
@@ -76036,7 +76027,7 @@ var import_node_os3 = __toESM(require("node:os"), 1);
 var import_node_readline = __toESM(require("node:readline"), 1);
 
 // node_modules/@puppeteer/browsers/lib/esm/browser-data/chrome-headless-shell.js
-var import_node_path3 = __toESM(require("node:path"), 1);
+var import_node_path2 = __toESM(require("node:path"), 1);
 
 // node_modules/@puppeteer/browsers/lib/esm/browser-data/types.js
 var Browser3;
@@ -76076,7 +76067,7 @@ var ChromeReleaseChannel;
 })(ChromeReleaseChannel || (ChromeReleaseChannel = {}));
 
 // node_modules/@puppeteer/browsers/lib/esm/browser-data/chrome.js
-var import_node_path2 = __toESM(require("node:path"), 1);
+var import_node_path = __toESM(require("node:path"), 1);
 var import_semver = __toESM(require_semver2(), 1);
 
 // node_modules/@puppeteer/browsers/lib/esm/httpUtil.js
@@ -76165,13 +76156,13 @@ function relativeExecutablePath(platform, _buildId) {
   switch (platform) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return import_node_path2.default.join("chrome-" + folder(platform), "Google Chrome for Testing.app", "Contents", "MacOS", "Google Chrome for Testing");
+      return import_node_path.default.join("chrome-" + folder(platform), "Google Chrome for Testing.app", "Contents", "MacOS", "Google Chrome for Testing");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
-      return import_node_path2.default.join("chrome-linux64", "chrome");
+      return import_node_path.default.join("chrome-linux64", "chrome");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return import_node_path2.default.join("chrome-" + folder(platform), "chrome.exe");
+      return import_node_path.default.join("chrome-" + folder(platform), "chrome.exe");
   }
 }
 async function getLastKnownGoodReleaseForChannel(channel) {
@@ -76288,18 +76279,18 @@ function relativeExecutablePath2(platform, _buildId) {
   switch (platform) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return import_node_path3.default.join("chrome-headless-shell-" + folder2(platform), "chrome-headless-shell");
+      return import_node_path2.default.join("chrome-headless-shell-" + folder2(platform), "chrome-headless-shell");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
-      return import_node_path3.default.join("chrome-headless-shell-linux64", "chrome-headless-shell");
+      return import_node_path2.default.join("chrome-headless-shell-linux64", "chrome-headless-shell");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return import_node_path3.default.join("chrome-headless-shell-" + folder2(platform), "chrome-headless-shell.exe");
+      return import_node_path2.default.join("chrome-headless-shell-" + folder2(platform), "chrome-headless-shell.exe");
   }
 }
 
 // node_modules/@puppeteer/browsers/lib/esm/browser-data/chromedriver.js
-var import_node_path4 = __toESM(require("node:path"), 1);
+var import_node_path3 = __toESM(require("node:path"), 1);
 function folder3(platform) {
   switch (platform) {
     case BrowserPlatform.LINUX_ARM:
@@ -76325,18 +76316,18 @@ function relativeExecutablePath3(platform, _buildId) {
   switch (platform) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return import_node_path4.default.join("chromedriver-" + folder3(platform), "chromedriver");
+      return import_node_path3.default.join("chromedriver-" + folder3(platform), "chromedriver");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
-      return import_node_path4.default.join("chromedriver-linux64", "chromedriver");
+      return import_node_path3.default.join("chromedriver-linux64", "chromedriver");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return import_node_path4.default.join("chromedriver-" + folder3(platform), "chromedriver.exe");
+      return import_node_path3.default.join("chromedriver-" + folder3(platform), "chromedriver.exe");
   }
 }
 
 // node_modules/@puppeteer/browsers/lib/esm/browser-data/chromium.js
-var import_node_path5 = __toESM(require("node:path"), 1);
+var import_node_path4 = __toESM(require("node:path"), 1);
 function archive(platform, buildId) {
   switch (platform) {
     case BrowserPlatform.LINUX_ARM:
@@ -76375,13 +76366,13 @@ function relativeExecutablePath4(platform, _buildId) {
   switch (platform) {
     case BrowserPlatform.MAC:
     case BrowserPlatform.MAC_ARM:
-      return import_node_path5.default.join("chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium");
+      return import_node_path4.default.join("chrome-mac", "Chromium.app", "Contents", "MacOS", "Chromium");
     case BrowserPlatform.LINUX_ARM:
     case BrowserPlatform.LINUX:
-      return import_node_path5.default.join("chrome-linux", "chrome");
+      return import_node_path4.default.join("chrome-linux", "chrome");
     case BrowserPlatform.WIN32:
     case BrowserPlatform.WIN64:
-      return import_node_path5.default.join("chrome-win", "chrome.exe");
+      return import_node_path4.default.join("chrome-win", "chrome.exe");
   }
 }
 async function resolveBuildId2(platform) {
@@ -76393,7 +76384,7 @@ function compareVersions2(a, b) {
 
 // node_modules/@puppeteer/browsers/lib/esm/browser-data/firefox.js
 var import_node_fs = __toESM(require("node:fs"), 1);
-var import_node_path6 = __toESM(require("node:path"), 1);
+var import_node_path5 = __toESM(require("node:path"), 1);
 function getFormat(buildId) {
   const majorVersion = Number(buildId.split(".").shift());
   return majorVersion >= 135 ? "xz" : "bz2";
@@ -76489,13 +76480,13 @@ function relativeExecutablePath5(platform, buildId) {
       switch (platform) {
         case BrowserPlatform.MAC_ARM:
         case BrowserPlatform.MAC:
-          return import_node_path6.default.join("Firefox Nightly.app", "Contents", "MacOS", "firefox");
+          return import_node_path5.default.join("Firefox Nightly.app", "Contents", "MacOS", "firefox");
         case BrowserPlatform.LINUX_ARM:
         case BrowserPlatform.LINUX:
-          return import_node_path6.default.join("firefox", "firefox");
+          return import_node_path5.default.join("firefox", "firefox");
         case BrowserPlatform.WIN32:
         case BrowserPlatform.WIN64:
-          return import_node_path6.default.join("firefox", "firefox.exe");
+          return import_node_path5.default.join("firefox", "firefox.exe");
       }
     case FirefoxChannel.BETA:
     case FirefoxChannel.DEVEDITION:
@@ -76504,13 +76495,13 @@ function relativeExecutablePath5(platform, buildId) {
       switch (platform) {
         case BrowserPlatform.MAC_ARM:
         case BrowserPlatform.MAC:
-          return import_node_path6.default.join("Firefox.app", "Contents", "MacOS", "firefox");
+          return import_node_path5.default.join("Firefox.app", "Contents", "MacOS", "firefox");
         case BrowserPlatform.LINUX_ARM:
         case BrowserPlatform.LINUX:
-          return import_node_path6.default.join("firefox", "firefox");
+          return import_node_path5.default.join("firefox", "firefox");
         case BrowserPlatform.WIN32:
         case BrowserPlatform.WIN64:
-          return import_node_path6.default.join("core", "firefox.exe");
+          return import_node_path5.default.join("core", "firefox.exe");
       }
   }
 }
@@ -76717,8 +76708,8 @@ async function backupFile(input) {
   await import_node_fs.default.promises.copyFile(input, input + ".puppeteer");
 }
 async function syncPreferences(options) {
-  const prefsPath = import_node_path6.default.join(options.path, "prefs.js");
-  const userPath = import_node_path6.default.join(options.path, "user.js");
+  const prefsPath = import_node_path5.default.join(options.path, "prefs.js");
+  const userPath = import_node_path5.default.join(options.path, "user.js");
   const lines = Object.entries(options.preferences).map(([key, value]) => {
     return `user_pref(${JSON.stringify(key)}, ${JSON.stringify(value)});`;
   });
@@ -76911,7 +76902,7 @@ function getVersionComparator(browser) {
 // node_modules/@puppeteer/browsers/lib/esm/Cache.js
 var import_node_fs2 = __toESM(require("node:fs"), 1);
 var import_node_os2 = __toESM(require("node:os"), 1);
-var import_node_path7 = __toESM(require("node:path"), 1);
+var import_node_path6 = __toESM(require("node:path"), 1);
 var import_debug = __toESM(require_src(), 1);
 
 // node_modules/@puppeteer/browsers/lib/esm/detectPlatform.js
@@ -76990,10 +76981,10 @@ var Cache = class {
     return this.#rootDir;
   }
   browserRoot(browser) {
-    return import_node_path7.default.join(this.#rootDir, browser);
+    return import_node_path6.default.join(this.#rootDir, browser);
   }
   metadataFile(browser) {
-    return import_node_path7.default.join(this.browserRoot(browser), ".metadata");
+    return import_node_path6.default.join(this.browserRoot(browser), ".metadata");
   }
   readMetadata(browser) {
     const metatadaPath = this.metadataFile(browser);
@@ -77008,7 +76999,7 @@ var Cache = class {
   }
   writeMetadata(browser, metadata) {
     const metatadaPath = this.metadataFile(browser);
-    import_node_fs2.default.mkdirSync(import_node_path7.default.dirname(metatadaPath), { recursive: true });
+    import_node_fs2.default.mkdirSync(import_node_path6.default.dirname(metatadaPath), { recursive: true });
     import_node_fs2.default.writeFileSync(metatadaPath, JSON.stringify(metadata, null, 2));
   }
   resolveAlias(browser, alias) {
@@ -77019,7 +77010,7 @@ var Cache = class {
     return metadata.aliases[alias];
   }
   installationDir(browser, platform, buildId) {
-    return import_node_path7.default.join(this.browserRoot(browser), `${platform}-${buildId}`);
+    return import_node_path6.default.join(this.browserRoot(browser), `${platform}-${buildId}`);
   }
   clear() {
     import_node_fs2.default.rmSync(this.#rootDir, {
@@ -77054,7 +77045,7 @@ var Cache = class {
     return browsers.flatMap((browser) => {
       const files = import_node_fs2.default.readdirSync(this.browserRoot(browser));
       return files.map((file) => {
-        const result = parseFolderPath(import_node_path7.default.join(this.browserRoot(browser), file));
+        const result = parseFolderPath(import_node_path6.default.join(this.browserRoot(browser), file));
         if (!result) {
           return null;
         }
@@ -77075,11 +77066,11 @@ var Cache = class {
       debugCache("could not read .metadata file for the browser");
     }
     const installationDir = this.installationDir(options.browser, options.platform, options.buildId);
-    return import_node_path7.default.join(installationDir, executablePathByBrowser[options.browser](options.platform, options.buildId));
+    return import_node_path6.default.join(installationDir, executablePathByBrowser[options.browser](options.platform, options.buildId));
   }
 };
 function parseFolderPath(folderPath) {
-  const name = import_node_path7.default.basename(folderPath);
+  const name = import_node_path6.default.basename(folderPath);
   const splits = name.split("-");
   if (splits.length !== 2) {
     return;
@@ -77111,13 +77102,13 @@ function computeSystemExecutablePath(options) {
   if (!options.platform) {
     throw new Error(`Cannot download a binary for the provided platform: ${import_node_os3.default.platform()} (${import_node_os3.default.arch()})`);
   }
-  const path12 = resolveSystemExecutablePath2(options.browser, options.platform, options.channel);
+  const path10 = resolveSystemExecutablePath2(options.browser, options.platform, options.channel);
   try {
-    (0, import_node_fs3.accessSync)(path12);
+    (0, import_node_fs3.accessSync)(path10);
   } catch {
-    throw new Error(`Could not find Google Chrome executable for channel '${options.channel}' at '${path12}'.`);
+    throw new Error(`Could not find Google Chrome executable for channel '${options.channel}' at '${path10}'.`);
   }
-  return path12;
+  return path10;
 }
 function launch(opts) {
   return new Process(opts);
@@ -78702,11 +78693,11 @@ var parser = new YargsParser({
   resolve: import_path2.resolve,
   // TODO: figure  out a  way to combine ESM and CJS coverage, such  that
   // we can exercise all the lines below:
-  require: (path12) => {
+  require: (path10) => {
     if (typeof require !== "undefined") {
-      return require(path12);
-    } else if (path12.match(/\.json$/)) {
-      return JSON.parse((0, import_fs2.readFileSync)(path12, "utf8"));
+      return require(path10);
+    } else if (path10.match(/\.json$/)) {
+      return JSON.parse((0, import_fs2.readFileSync)(path10, "utf8"));
     } else {
       throw Error("only .json config files are supported in ESM");
     }
@@ -82279,7 +82270,7 @@ init_assert();
 // node_modules/puppeteer-core/lib/esm/puppeteer/node/BrowserLauncher.js
 var import_node_fs4 = require("node:fs");
 var import_node_os5 = require("node:os");
-var import_node_path8 = require("node:path");
+var import_node_path7 = require("node:path");
 init_rxjs();
 init_Errors();
 init_util();
@@ -82542,7 +82533,7 @@ var BrowserLauncher = class {
    * @internal
    */
   getProfilePath() {
-    return (0, import_node_path8.join)(this.puppeteer.configuration.temporaryDirectory ?? (0, import_node_os5.tmpdir)(), `puppeteer_dev_${this.browser}_profile-`);
+    return (0, import_node_path7.join)(this.puppeteer.configuration.temporaryDirectory ?? (0, import_node_os5.tmpdir)(), `puppeteer_dev_${this.browser}_profile-`);
   }
   /**
    * @internal
@@ -82602,8 +82593,8 @@ var rmOptions = {
   recursive: true,
   maxRetries: 5
 };
-async function rm(path12) {
-  await import_node_fs5.default.promises.rm(path12, rmOptions);
+async function rm(path10) {
+  await import_node_fs5.default.promises.rm(path10, rmOptions);
 }
 
 // node_modules/puppeteer-core/lib/esm/puppeteer/node/ChromeLauncher.js
@@ -82678,10 +82669,10 @@ var ChromeLauncher = class extends BrowserLauncher {
   /**
    * @internal
    */
-  async cleanUserDataDir(path12, opts) {
+  async cleanUserDataDir(path10, opts) {
     if (opts.isTemp) {
       try {
-        await rm(path12);
+        await rm(path10);
       } catch (error) {
         debugError(error);
         throw error;
@@ -82757,7 +82748,7 @@ var ChromeLauncher = class extends BrowserLauncher {
     });
     const { devtools = false, headless = !devtools, args = [], userDataDir } = options;
     if (userDataDir) {
-      chromeArguments.push(`--user-data-dir=${import_node_path9.default.resolve(userDataDir)}`);
+      chromeArguments.push(`--user-data-dir=${import_node_path8.default.resolve(userDataDir)}`);
     }
     if (devtools) {
       chromeArguments.push("--auto-open-devtools-for-tabs");
@@ -82822,7 +82813,7 @@ function removeMatchingFlags(array, flag) {
 var import_node_fs6 = __toESM(require("node:fs"), 1);
 var import_promises2 = require("node:fs/promises");
 var import_node_os7 = __toESM(require("node:os"), 1);
-var import_node_path10 = __toESM(require("node:path"), 1);
+var import_node_path9 = __toESM(require("node:path"), 1);
 init_util();
 init_assert();
 var FirefoxLauncher = class _FirefoxLauncher extends BrowserLauncher {
@@ -82915,9 +82906,9 @@ var FirefoxLauncher = class _FirefoxLauncher extends BrowserLauncher {
         const backupSuffix = ".puppeteer";
         const backupFiles = ["prefs.js", "user.js"];
         const results = await Promise.allSettled(backupFiles.map(async (file) => {
-          const prefsBackupPath = import_node_path10.default.join(userDataDir, file + backupSuffix);
+          const prefsBackupPath = import_node_path9.default.join(userDataDir, file + backupSuffix);
           if (import_node_fs6.default.existsSync(prefsBackupPath)) {
-            const prefsPath = import_node_path10.default.join(userDataDir, file);
+            const prefsPath = import_node_path9.default.join(userDataDir, file);
             await (0, import_promises2.unlink)(prefsPath);
             await (0, import_promises2.rename)(prefsBackupPath, prefsPath);
           }
@@ -83298,7 +83289,7 @@ var ScreenRecorder = (() => {
     /**
      * @internal
      */
-    constructor(page, width, height, { speed, scale, crop, format: format3, fps, loop, delay, quality, colors, path: path12 } = {}) {
+    constructor(page, width, height, { speed, scale, crop, format: format3, fps, loop, delay, quality, colors, path: path10 } = {}) {
       super({ allowHalfOpen: false });
       format3 ??= "webm";
       fps ??= DEFAULT_FPS;
@@ -83306,9 +83297,9 @@ var ScreenRecorder = (() => {
       delay ??= -1;
       quality ??= CRF_VALUE;
       colors ??= 256;
-      path12 ??= "ffmpeg";
+      path10 ??= "ffmpeg";
       this.#fps = fps;
-      const { error } = (0, import_node_child_process2.spawnSync)(path12);
+      const { error } = (0, import_node_child_process2.spawnSync)(path10);
       if (error) {
         throw error;
       }
@@ -83331,7 +83322,7 @@ var ScreenRecorder = (() => {
         filters.push(formatArgs.splice(vf, 2).at(-1) ?? "");
       }
       this.#process = (0, import_node_child_process2.spawn)(
-        path12,
+        path10,
         // See https://trac.ffmpeg.org/wiki/Encode/VP9 for more information on flags.
         [
           ["-loglevel", "error"],
@@ -83481,11 +83472,11 @@ var ScreenRecorder = (() => {
 
 // node_modules/puppeteer-core/lib/esm/puppeteer/puppeteer-core.js
 var import_node_fs7 = __toESM(require("node:fs"), 1);
-var import_node_path11 = __toESM(require("node:path"), 1);
+var import_node_path10 = __toESM(require("node:path"), 1);
 init_environment();
 environment.value = {
   fs: import_node_fs7.default,
-  path: import_node_path11.default,
+  path: import_node_path10.default,
   ScreenRecorder
 };
 var puppeteer = new PuppeteerNode({
@@ -83512,7 +83503,7 @@ var {
 
 // node_modules/puppeteer/lib/esm/puppeteer/getConfiguration.js
 var import_node_os9 = require("node:os");
-var import_node_path12 = require("node:path");
+var import_node_path11 = require("node:path");
 var import_cosmiconfig = __toESM(require_dist12(), 1);
 function getBooleanEnvVar(name) {
   const env2 = process.env[name];
@@ -83589,7 +83580,7 @@ var getConfiguration = () => {
   configuration2.firefox = getBrowserSetting("firefox", configuration2, {
     skipDownload: true
   });
-  configuration2.cacheDirectory = process.env["PUPPETEER_CACHE_DIR"] ?? configuration2.cacheDirectory ?? (0, import_node_path12.join)((0, import_node_os9.homedir)(), ".cache", "puppeteer");
+  configuration2.cacheDirectory = process.env["PUPPETEER_CACHE_DIR"] ?? configuration2.cacheDirectory ?? (0, import_node_path11.join)((0, import_node_os9.homedir)(), ".cache", "puppeteer");
   configuration2.temporaryDirectory = process.env["PUPPETEER_TMP_DIR"] ?? configuration2.temporaryDirectory;
   configuration2.experiments ??= {};
   return configuration2;
@@ -83739,23 +83730,6 @@ function sayHello(response) {
   response.statusCode = 200;
   response.end("hello");
 }
-async function sendFavicon(response) {
-  try {
-    const file = import_node_path13.default.join(getProjectFolderPath(), "favicon.ico");
-    const buffer = await (0, import_promises3.readFile)(file);
-    response.statusCode = 200;
-    response.end(buffer);
-  } catch (e) {
-    if (e.code == "ENOENT") {
-      response.statusCode = 404;
-      response.end();
-    } else {
-      console.log(e);
-      response.statusCode = 500;
-      response.end();
-    }
-  }
-}
 async function scrapeCurse(request3, response) {
   const url = createUrl("http", request3.headers.host, request3.url);
   const addonParam = url.searchParams.get("addon");
@@ -83814,9 +83788,7 @@ function start() {
     }
     if (req.url === "/") {
       sayHello(res);
-    } else if (req.url === "/favicon.ico") {
-      sendFavicon(res);
-    } else if (req.url.startsWith("/wowcam")) {
+    } else if (req.url.startsWith("/scrape")) {
       scrapeCurse(req, res);
     } else {
       res.statusCode = 404;
