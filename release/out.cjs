@@ -83823,7 +83823,7 @@ function start() {
       res.end();
     }
   });
-  server.listen(8e3, "127.0.0.1");
+  server.listen(8e3, "0.0.0.0");
 }
 
 // src/app.js
