@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "main": "src/app.js",
   "scripts": {
-    "start": "node --watch src/app.js"
+    "start": "node --watch src/app.js",
+    "build": "esbuild src/app.js --bundle --platform=node --external:typescript --outfile=release/out.cjs",
+    "release": "node release/out.cjs"
   },
   "author": "MBODM",
   "license": "MIT",
   "description": "WOWCAM backend service, which scrapes addon data from the web (by using Puppeteer).",
+  "type": "module",
   "dependencies": {
     "puppeteer": "^24.6.1"
   },
-  "type": "module"
+  "devDependencies": {
+    "esbuild": "0.25.2"
+  }
 }

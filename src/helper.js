@@ -1,14 +1,4 @@
-import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-
-/**
- * @returns {string}
- */
-export function getModuleFolderPath() {
-    const moduleFile = fileURLToPath(import.meta.url);
-    const moduleFolder = path.dirname(moduleFile);
-    return path.resolve(moduleFolder);
-}
 
 /**
  * @returns {string}
