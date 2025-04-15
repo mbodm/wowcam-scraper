@@ -27,7 +27,14 @@ export async function parseSite(addonSlug) {
     }
     const url = `http://www.curseforge.com/wow/addons/${addonSlug}`;
     try {
-        await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+        const response = await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+        const status = response.status();
+        if (status !== 200) {
+            if (status === 404) {
+                return createError('It seems like the addon page does not exist (this usually happens when the given addon param is not a valid addon slug).');
+            }
+            return createError('Puppeteer reponse error occurred while going to page, but the response status code was not HTTP 404 (which is rather unexpected).');
+        }
     }
     catch (e) {
         console.log(e);
@@ -35,10 +42,6 @@ export async function parseSite(addonSlug) {
     }
     let json;
     try {
-        const addonPageNotExists = await is404ErrorPage(page);
-        if (addonPageNotExists) {
-            return createError('It seems like the addon page does not exist (maybe the given addon param is invalid).');
-        }
         const element = await page.$('script#__NEXT_DATA__');
         if (!element) {
             return createError('Could not found JSON script element in page.')
@@ -55,20 +58,4 @@ export async function parseSite(addonSlug) {
     }
     await browser.close();
     return createSuccess(json);
-}
-
-/**
- * @param {any} page
- * @returns {Promise<boolean>}
- */
-async function is404ErrorPage(page) {
-    const element = await page.$('.error-description');
-    if (!element) {
-        return false;
-    }
-    const text = await page.evaluate(el => el.textContent, element) ?? '';
-    if (!text.includes('404')) {
-        return false;
-    }
-    return true;
 }
