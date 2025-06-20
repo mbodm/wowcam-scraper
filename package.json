@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "src/app.js",
   "scripts": {
-    "start": "node --watch src/app.js",
-    "build": "esbuild src/app.js --bundle --platform=node --external:typescript --outfile=release/out.cjs",
-    "release": "node release/out.cjs"
+    "dev": "node --watch src/app.js",
+    "build": "esbuild src/app.js --bundle --platform=node --external:typescript --outfile=release/scrape.cjs",
+    "prod": "node release/scrape.cjs"
   },
   "author": "MBODM",
   "license": "MIT",
