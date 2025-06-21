@@ -12,6 +12,7 @@
   "description": "WOWCAM backend service, which scrapes addon data from the web (by using Puppeteer).",
   "type": "module",
   "dependencies": {
+    "node-fetch": "^3.3.2",
     "puppeteer": "^24.6.1"
   },
   "devDependencies": {

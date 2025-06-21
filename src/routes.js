@@ -2,6 +2,7 @@ import { ServerResponse, IncomingMessage } from 'node:http';
 import { createUrl } from './helper.js';
 import { parseSite } from './browser.js';
 import { createObject } from './curse.js';
+import { getFinalDownloadUrlAfterAllRedirects } from './redirects.js';
 
 /**
  * @param {ServerResponse<IncomingMessage>} response
@@ -35,6 +36,11 @@ export async function scrapeCurse(request, response) {
     const scrapeStep = createObject(curseJson);
     if (!scrapeStep.success) {
         return sendError(request, 500, scrapeStep.error);
+    }
+    const downloadUrl = scrapeStep.result.downloadUrl;
+    if (downloadUrl) {
+        const realDownloadUrl = await getFinalDownloadUrlAfterAllRedirects(downloadUrl);
+        scrapeStep.result.downloadUrlAfterAllRedirects = realDownloadUrl;
     }
     return sendSuccess(response, scrapeStep.result);
 }
