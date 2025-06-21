@@ -9,7 +9,7 @@
   },
   "author": "MBODM",
   "license": "MIT",
-  "description": "WOWCAM backend service, which scrapes addon data from the web (by using Puppeteer).",
+  "description": "WOWCAM backend service to scrape addon data from the web (by using Puppeteer)",
   "type": "module",
   "dependencies": {
     "node-fetch": "^3.3.2",
