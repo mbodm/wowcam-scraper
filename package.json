@@ -7,12 +7,11 @@
     "build": "esbuild src/app.js --bundle --platform=node --external:typescript --outfile=release/scrape.cjs",
     "prod": "node release/scrape.cjs"
   },
-  "author": "MBODM",
+  "author": "MBODM (mbodm.com)",
   "license": "MIT",
   "description": "WOWCAM backend service to scrape addon data from the web (by using Puppeteer)",
   "type": "module",
   "dependencies": {
-    "node-fetch": "^3.3.2",
     "puppeteer": "^24.6.1"
   },
   "devDependencies": {
