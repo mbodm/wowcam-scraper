@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { root, scrape } from './handler.js';
+import { root, scrape } from './routes.js';
 
 /**
  * This function starts a Node.js HTTP server which exposes various API endpoints
@@ -15,27 +15,37 @@ export function startServer(port) {
             return;
         }
         // Routes
-        const proto = req.headers['x-forwarded-proto'] ?? 'http';
-        const url = new URL(req.url, `${proto}://${req.headers.host}`);
-        const context = { url, req, res};
-
-
-
-
+        const url = createUrl(req);
         switch (url.pathname) {
             case '/':
-                root(req, res);
+                req.method === 'GET' ? root(res) : methodNotAllowed(res);
                 break;
             case '/scrape':
-                scrape(req, res);
+                req.method === 'GET' ? scrape(url, req, res) : methodNotAllowed(res);
                 break;
             default:
-                console.log(url.pathname);
-                res.statusCode = 404;
-                res.end();
+                routeNotFound(res);
                 break;
         }
     });
     server.listen(port, '0.0.0.0');
     console.log(`Server started (http://localhost:${port})`);
+}
+
+function createUrl(req) {
+    const proto = req.headers['x-forwarded-proto'] ?? 'http';
+    const url = new URL(req.url, `${proto}://${req.headers.host}`);
+    return url;
+}
+
+function methodNotAllowed(req, res) {
+    console.log(`HTTP ${req.method} method not allowed for requested "${url.pathname}" path`);
+    res.writeHead(405, { 'Content-Type': 'text/plain', 'Allow': 'GET' });
+    res.end();
+}
+
+function routeNotFound(res, url) {
+    console.log(`No route handler implemented for requested "${url.pathname}" path`);
+    res.statusCode = 404;
+    res.end();
 }

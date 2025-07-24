@@ -5,7 +5,7 @@ import { launch } from 'puppeteer';
  * @param {string} addonSlug
  * @returns {Promise<object>}
  */
-export async function scrapeSite(addonSlug) {
+export async function scrapeAddonSite(addonSlug) {
     let browser;
     try {
         try {
@@ -13,7 +13,7 @@ export async function scrapeSite(addonSlug) {
         }
         catch (err) {
             console.log(err);
-            return createError('Puppeteer exception occurreed while launching browser.');
+            return error('Puppeteer exception occurreed while launching browser.');
         }
         let page;
         try {
@@ -23,7 +23,7 @@ export async function scrapeSite(addonSlug) {
         }
         catch (err) {
             console.log(err);
-            return createError('Puppeteer exception occurreed while getting page.');
+            return error('Puppeteer exception occurreed while getting page.');
         }
         const url = `http://www.curseforge.com/wow/addons/${addonSlug}`;
         try {
@@ -31,14 +31,14 @@ export async function scrapeSite(addonSlug) {
             const status = response.status();
             if (status !== 200) {
                 if (status === 404) {
-                    return createError('It seems like the addon page does not exist (this usually happens when the given addon param is not a valid addon slug).');
+                    return error('It seems like the addon page does not exist (this usually happens when the given addon param is not a valid addon slug).');
                 }
-                return createError('Puppeteer reponse error occurred while going to page, but the response status code was not HTTP 404 (which is rather unexpected).');
+                return error('Puppeteer reponse error occurred while going to page, but the response status code was not HTTP 404 (which is rather unexpected).');
             }
         }
         catch (err) {
             console.log(err);
-            return createError('Puppeteer exception occurreed while going to page.');
+            return error('Puppeteer exception occurreed while going to page.');
         }
         let siteJson;
         try {
@@ -46,7 +46,7 @@ export async function scrapeSite(addonSlug) {
         }
         catch (err) {
             console.log(err);
-            return createError('Puppeteer exception occurreed while evaluating page, to grab the embedded JSON data.');
+            return error('Puppeteer exception occurreed while evaluating page, to grab the embedded JSON data.');
         }
         let siteData;
         try {
@@ -54,9 +54,9 @@ export async function scrapeSite(addonSlug) {
         }
         catch (err) {
             console.log(err);
-            return createError('Puppeteer exception occurreed while evaluating page, to grab user-agent, cookie and headers.');
+            return error('Puppeteer exception occurreed while evaluating page, to grab user-agent, cookie and headers.');
         }
-        return createSuccess({ siteJson, ...siteData });
+        return success({ siteJson, ...siteData });
     }
     finally {
         if (browser) {
@@ -92,10 +92,10 @@ async function getAddonSiteData(page, browser) {
     return { userAgent, pageCookie, pageReferer, pageOrigin };
 }
 
-function createError(error) {
-    return { success: false, error };
+function error(msg) {
+    return { success: false, error: msg };
 }
 
-function createSuccess(result) {
+function success(result) {
     return { success: true, error: '', ...result };
 }

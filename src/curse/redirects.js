@@ -3,7 +3,7 @@
  * @param {string} scrapedDownloadUrl 
  * @returns {Promise<string>}
  */
-export async function getFinalDownloadUrlAfterAllRedirects(scrapedDownloadUrl) {
+export async function getFinalDownloadUrl(scrapedDownloadUrl) {
     try {
         const response = await fetch(scrapedDownloadUrl);
         return response.url;
