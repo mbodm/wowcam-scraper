@@ -1,5 +1,5 @@
 import { ServerResponse, IncomingMessage } from 'node:http';
-import { scrapeAddonSite } from '../curse/puppeteer.js';
+import { scrapeAddonSite } from '../curse/playwright.js';
 import { evalSiteJson } from '../curse/eval.js';
 import { getFinalDownloadUrl } from '../curse/redirects.js';
 
@@ -40,10 +40,11 @@ export async function scrape(url, req, res) {
     }
     const downloadUrl = evalStep.downloadUrl;
     if (downloadUrl) {
-        const realDownloadUrl = await getFinalDownloadUrl(downloadUrl);
-        evalStep.result.downloadUrlAfterAllRedirects = realDownloadUrl;
+        const siteHeaders = scrapeStep.siteHeaders;
+        const realDownloadUrl = await getFinalDownloadUrl(downloadUrl, siteHeaders);
+        evalStep.downloadUrlFinal = realDownloadUrl;
     }
-    return success(res, evalStep.result);
+    return success(res, evalStep);
 }
 
 function error(res, status, msg) {

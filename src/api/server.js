@@ -23,8 +23,11 @@ export function startServer(port) {
             case '/scrape':
                 req.method === 'GET' ? scrape(url, req, res) : methodNotAllowed(res);
                 break;
+            case '/favicon.ico':
+                req.method === 'GET' ? handleFaviconRequest(res) : methodNotAllowed(res);
+                break;
             default:
-                routeNotFound(res);
+                routeNotFound(res, url);
                 break;
         }
     });
@@ -41,6 +44,11 @@ function createUrl(req) {
 function methodNotAllowed(req, res) {
     console.log(`HTTP ${req.method} method not allowed for requested "${url.pathname}" path`);
     res.writeHead(405, { 'Content-Type': 'text/plain', 'Allow': 'GET' });
+    res.end();
+}
+
+function handleFaviconRequest(res) {
+    res.statusCode = 404;
     res.end();
 }
 

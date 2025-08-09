@@ -34,7 +34,8 @@ export function evalSiteJson(siteJson) {
         fileName: file.fileName ?? null,
         fileLength: file.fileLength ?? null,
         gameVersion: file.primaryGameVersion ?? null,
-        downloadUrl: `https://www.curseforge.com/api/v1/mods/${project.id}/files/${file.id}/download`
+        downloadUrl: `https://www.curseforge.com/api/v1/mods/${project.id}/files/${file.id}/download`,
+        downloadUrlFinal: '',
     });
 }
 
