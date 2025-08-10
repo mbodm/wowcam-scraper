@@ -1,13 +1,13 @@
 // src/api/server.js
-var import_node_http = require("node:http");
+import { createServer } from "node:http";
 
 // src/curse/playwright.js
-var import_playwright = require("playwright");
+import { chromium } from "playwright";
 async function scrapeAddonSite(addonSlug) {
   let browser;
   try {
     try {
-      browser = await import_playwright.chromium.launch({ headless: true });
+      browser = await chromium.launch({ headless: true });
     } catch (err2) {
       console.log(err2);
       return error("Playwright exception occurred while launching browser.");
@@ -218,7 +218,7 @@ function createPrettyStatus(status) {
 
 // src/api/server.js
 function startServer(port) {
-  const server = (0, import_node_http.createServer)(async (req, res) => {
+  const server = createServer(async (req, res) => {
     if (req.url.length > 255) {
       res.setHeader("Content-Type", "text/plain");
       res.statusCode = 400;

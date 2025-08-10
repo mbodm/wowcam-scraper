@@ -4,8 +4,11 @@
   "main": "src/app.js",
   "scripts": {
     "dev": "node --watch src/app.js",
-    "build": "esbuild src/app.js --bundle --platform=node --external:playwright --outfile=release/scrape.cjs",
-    "prod": "node release/scrape.cjs"
+    "build": "esbuild src/app.js --format=esm --bundle --platform=node --external:playwright --outfile=release/scrape.mjs",
+    "dcup": "sudo docker compose -f docker/docker-compose.yml up -d --build",
+    "dcdown": "sudo docker compose -f docker/docker-compose.yml down",
+    "dclogspw": "sudo docker compose -f docker/docker-compose.yml logs playwright",
+    "dclogscaddy": "sudo docker compose -f docker/docker-compose.yml logs caddy"
   },
   "author": "MBODM (mbodm.com)",
   "license": "MIT",
