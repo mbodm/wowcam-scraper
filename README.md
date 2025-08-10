@@ -30,7 +30,7 @@ WOWCAM backend service to scrape addon data from the web
     - to start that custom image as container
     - to shutdown all the containers
     - to view the logs of the containers
-    - no bind mount or host polution (caching `node_modules`) is used
+    - no bind mount or host polution (caching `node_modules` etc.) is used
     - see `docker-compose.yml` file for details
  - All build and deployment is controlled by a few `npm run` scripts (see `package.json`)
 
