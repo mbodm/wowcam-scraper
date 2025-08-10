@@ -17,7 +17,7 @@ WOWCAM backend service to scrape addon data from the web
     - the release-file is started by Node.js in the created image
     - see `Dockerfile` for details
   - Reasons for a custom Docker image:
-    - to use no bind mount or host polution stuff (caching `node_modules` etc.) when using Docker-Compose
+    - no bind mount or host polution stuff (caching `node_modules` etc.) when using Docker-Compose
     - stable production deployment
   - Caddy
     - used as revery proxy
