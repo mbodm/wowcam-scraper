@@ -6,6 +6,7 @@ services:
     container_name: playwright
     init: true
     restart: unless-stopped
+    # For the next 2 entries please see "Docker" section of official Playwright site
     ipc: host
     security_opt:
       - seccomp=./seccomp_profile.json
