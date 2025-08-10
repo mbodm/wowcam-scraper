@@ -2,13 +2,13 @@
 WOWCAM backend service to scrape addon data from the web
 
 - It's a very simple web scraper REST API service (using _Playwright_)
-- It's only offering a single HTTP GET endpoint
 - It's a small _Node.js_ project
-  - Using `playwright` as the only runtime dependency
-  - Using ES-Modules `import` statements (instead of CommonJS `require` statements)
-  - Using promises (via `async/await` statements)
-  - Using `esbuild` to create a single release-file (`scrape.mjs`)
-  - See the `src` folder and the `package.json` for details
+  - using `playwright` as the only runtime dependency
+  - using ES-Modules `import` statements (instead of CommonJS `require` statements)
+  - using promises (via `async/await` statements)
+  - using `esbuild` to create a single release-file (`scrape.mjs`)
+  - only offers a single HTTP GET endpoint
+  - see the `src` folder and the `package.json` for details
 - Docker and Caddy are used for deployment
   - Docker
     - the official Playwright Docker image is used as base image
