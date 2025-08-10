@@ -28,7 +28,7 @@ WOWCAM backend service to scrape addon data from the web
   - Docker-Compose
     - to define the network
     - to start the Caddy container (the official Caddy image is used)
-    - to build above custom Docker image (containing release-file, Node and Playwright)
+    - to build above custom Docker image (containing release-file, Node.js and Playwright)
     - to start that custom image as container
     - to shutdown all the containers
     - to view the logs of the containers
