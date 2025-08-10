@@ -1,6 +1,8 @@
 # wowcam-scraper
 WOWCAM backend service to scrape addon data from the web
 
+### What?
+
 - It's a very simple web scraper REST API service (using _Playwright_)
 - It's a small _Node.js_ project
   - using `playwright` as the only runtime dependency
@@ -32,6 +34,19 @@ WOWCAM backend service to scrape addon data from the web
     - to view the logs of the containers
     - no bind mount or host polution (caching `node_modules` etc.) is used
     - see `docker-compose.yml` file for details
- - All build and deployment is controlled by a few `npm run` scripts (see `package.json`)
+ - All build and deployment is controlled by a few `npm run` scripts (see `package.json` for details)
 
- #### Have fun.
+### Why?
+
+To offer some backend REST API service, which serves the scraped addon download URLs, used by my WOWCAM application.
+
+### How?
+
+- By using on-premise hosting on my server
+- By developing everything directly on that machine (remote)
+- By using _VS Code_ with active _Remote SSH_ extension
+- By using an A-RECORD entry for the sub domain
+- By using Caddy for the HTTPS (see above)
+- By deploying everything stable and secure in Docker containers (see above)
+
+#### Have fun.
