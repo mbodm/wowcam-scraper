@@ -16,7 +16,7 @@ WOWCAM backend service to scrape addon data from the web
     - the official Playwright Docker image is used as base image
     - the `npm install playwright` also happens in the created image
     - the release-file is copied into the created image
-    - the release-file is started by Node.js in the created image
+    - the release-file is started by `node` in the created image
     - see `Dockerfile` for details
   - Reasons for a custom Docker image:
     - no bind mount or host polution stuff (caching `node_modules` etc.) when using Docker-Compose
