@@ -18,13 +18,13 @@ export function startServer(port) {
         const url = createUrl(req);
         switch (url.pathname) {
             case '/':
-                req.method === 'GET' ? root(res) : methodNotAllowed(res);
+                req.method === 'GET' ? root(res) : methodNotAllowed(req, res, url);
                 break;
             case '/scrape':
-                req.method === 'GET' ? scrape(url, req, res) : methodNotAllowed(res);
+                req.method === 'GET' ? scrape(url, req, res) : methodNotAllowed(req, res, url);
                 break;
             case '/favicon.ico':
-                req.method === 'GET' ? handleFaviconRequest(res) : methodNotAllowed(res);
+                req.method === 'GET' ? handleFaviconRequest(res) : methodNotAllowed(req, res, url);
                 break;
             default:
                 routeNotFound(res, url);
@@ -41,7 +41,7 @@ function createUrl(req) {
     return url;
 }
 
-function methodNotAllowed(req, res) {
+function methodNotAllowed(req, res, url) {
     console.log(`HTTP ${req.method} method not allowed for requested "${url.pathname}" path`);
     res.writeHead(405, { 'Content-Type': 'text/plain', 'Allow': 'GET' });
     res.end();

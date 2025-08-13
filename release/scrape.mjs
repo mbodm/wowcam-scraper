@@ -30,9 +30,9 @@ async function scrapeAddonSite(addonSlug) {
       console.log(err2);
       return error("Playwright exception occurred while creating page.");
     }
-    const url2 = `http://www.curseforge.com/wow/addons/${addonSlug}`;
+    const url = `http://www.curseforge.com/wow/addons/${addonSlug}`;
     try {
-      const response = await page.goto(url2, { waitUntil: "domcontentloaded", timeout: 1e4 });
+      const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 1e4 });
       if (response === null) {
         throw new Error("Playwright page.goto() call returned null, instead of response object.");
       }
@@ -164,8 +164,8 @@ function root(res) {
   res.statusCode = 200;
   res.end("hello");
 }
-async function scrape(url2, req, res) {
-  const addonParam = url2.searchParams.get("addon");
+async function scrape(url, req, res) {
+  const addonParam = url.searchParams.get("addon");
   if (!addonParam) {
     return error3(res, 400, 'Missing "addon" query parameter in request URL.');
   }
@@ -175,7 +175,7 @@ async function scrape(url2, req, res) {
     return error3(res, code, scrapeStep.error);
   }
   const siteJson = scrapeStep.siteJson;
-  const pureParam = url2.searchParams.get("pure");
+  const pureParam = url.searchParams.get("pure");
   if (pureParam && pureParam.toLowerCase() === "true") {
     return success3(res, siteJson);
   }
@@ -225,19 +225,19 @@ function startServer(port) {
       res.end("URL is not allowed to exceed a limit of 255 characters");
       return;
     }
-    const url2 = createUrl(req);
-    switch (url2.pathname) {
+    const url = createUrl(req);
+    switch (url.pathname) {
       case "/":
-        req.method === "GET" ? root(res) : methodNotAllowed(res);
+        req.method === "GET" ? root(res) : methodNotAllowed(req, res, url);
         break;
       case "/scrape":
-        req.method === "GET" ? scrape(url2, req, res) : methodNotAllowed(res);
+        req.method === "GET" ? scrape(url, req, res) : methodNotAllowed(req, res, url);
         break;
       case "/favicon.ico":
-        req.method === "GET" ? handleFaviconRequest(res) : methodNotAllowed(res);
+        req.method === "GET" ? handleFaviconRequest(res) : methodNotAllowed(req, res, url);
         break;
       default:
-        routeNotFound(res, url2);
+        routeNotFound(res, url);
         break;
     }
   });
@@ -246,10 +246,10 @@ function startServer(port) {
 }
 function createUrl(req) {
   const proto = req.headers["x-forwarded-proto"] ?? "http";
-  const url2 = new URL(req.url, `${proto}://${req.headers.host}`);
-  return url2;
+  const url = new URL(req.url, `${proto}://${req.headers.host}`);
+  return url;
 }
-function methodNotAllowed(req, res) {
+function methodNotAllowed(req, res, url) {
   console.log(`HTTP ${req.method} method not allowed for requested "${url.pathname}" path`);
   res.writeHead(405, { "Content-Type": "text/plain", "Allow": "GET" });
   res.end();
@@ -258,8 +258,8 @@ function handleFaviconRequest(res) {
   res.statusCode = 404;
   res.end();
 }
-function routeNotFound(res, url2) {
-  console.log(`No route handler implemented for requested "${url2.pathname}" path`);
+function routeNotFound(res, url) {
+  console.log(`No route handler implemented for requested "${url.pathname}" path`);
   res.statusCode = 404;
   res.end();
 }
