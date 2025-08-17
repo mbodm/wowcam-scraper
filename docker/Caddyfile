@@ -1,5 +1,5 @@
 wowcam.mbodm.com {
-        reverse_proxy playwright:8000
+        reverse_proxy node:8000
         header {
                 Strict-Transport-Security "max-age=31536000;"
         }

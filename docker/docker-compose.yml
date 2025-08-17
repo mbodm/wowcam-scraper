@@ -1,17 +1,22 @@
 services:
-  playwright:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    container_name: playwright
-    init: true
+  node:
+    image: node:lts-slim
+    container_name: node
     restart: unless-stopped
-    # For the next 2 entries please see "Docker" section of official Playwright site
-    ipc: host
-    security_opt:
-      - seccomp=./seccomp_profile.json
-    expose:
-      - "8000"
+    volumes:
+      - ../release:/app:ro
+    working_dir: /app
+    command: [ "node", "scrape.mjs" ]
+    networks:
+      - caddy_net
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    ports:
+      - "8191:8191"
+    environment:
+      - LOG_LEVEL=info
     networks:
       - caddy_net
   caddy:

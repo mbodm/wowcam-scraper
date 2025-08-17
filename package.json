@@ -1,22 +1,22 @@
 {
   "name": "wowcam-scraper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "src/app.js",
   "scripts": {
     "dev": "node --watch src/app.js",
-    "build": "esbuild src/app.js --format=esm --bundle --platform=node --external:playwright --outfile=release/scrape.mjs",
+    "build": "esbuild src/app.js --format=esm --bundle --platform=node --outfile=release/scrape.mjs",
     "dcup": "sudo docker compose -f docker/docker-compose.yml up -d --build",
     "dcdown": "sudo docker compose -f docker/docker-compose.yml down",
-    "dclogspw": "sudo docker compose -f docker/docker-compose.yml logs playwright",
-    "dclogscaddy": "sudo docker compose -f docker/docker-compose.yml logs caddy"
+    "dclogsnode": "sudo docker compose -f docker/docker-compose.yml logs node --follow",
+    "dclogsfs": "sudo docker compose -f docker/docker-compose.yml logs flaresolverr --follow",
+    "dclogscaddy": "sudo docker compose -f docker/docker-compose.yml logs caddy --follow",
+    "restart": "npm run build && sleep 1 && npm run dcdown && sleep 1 && npm run dcup"
   },
   "author": "MBODM (mbodm.com)",
   "license": "MIT",
-  "description": "WOWCAM backend service to scrape addon data from the web (by using Playwright)",
+  "description": "WOWCAM backend service to scrape addon data from the web",
   "type": "module",
-  "dependencies": {
-    "playwright": "^1.54.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "esbuild": "0.25.2"
   }

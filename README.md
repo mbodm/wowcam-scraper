@@ -1,44 +1,38 @@
 # wowcam-scraper
+
 WOWCAM backend service to scrape addon data from the web
 
 ### What?
 
-- It's a very simple web scraper REST API service (using _Playwright_)
-- It's a small _Node.js_ project
-  - using `playwright` as the only runtime dependency
-  - using ES-Modules `import` statements (instead of CommonJS `require` statements)
+- It's a very simple web scraper REST API service (written in pure JS)
+- It's a small Node.js project
+  - offering only a single HTTP GET endpoint
+  - using ES-Modules `import` statements (not CommonJS `require` statements)
   - using promises (via `async/await` statements)
   - using `esbuild` to create a single release-file (`scrape.mjs`)
-  - only offers a single HTTP GET endpoint
+  - no external packages/dependencies (besides the `esbuild` dev dependency)
   - see the `src` folder and the `package.json` for details
 - Docker and Caddy are used for deployment
-  - Docker
-    - the official Playwright Docker image is used as base image
-    - the `npm install playwright` also happens in the created image
-    - the release-file is copied into the created image
-    - the release-file is started by `node` in the created image
-    - see `Dockerfile` for details
-  - Reasons for a custom Docker image:
-    - no bind mount or host polution stuff (caching `node_modules` etc.) when using Docker-Compose
-    - stable production deployment
+  - Docker-Compose
+    - to define the network
+    - to start the official Node.js LTS Docker image (to run the release-file)
+    - to start the official FlareSolverr Docker image (to scrape the sites)
+    - to start the official Caddy Docker image (to provide HTTPS support)
+    - to shutdown all the containers
+    - to view the logs of the containers
+    - to rebuild and restart all at once
+    - no bind mount or host polution (caching `node_modules` etc.) is used
+    - see `docker-compose.yml` file for details
   - Caddy
     - used as revery proxy
     - used for HTTPS handling
     - see the `Caddyfile` for details
-  - Docker-Compose
-    - to define the network
-    - to start the Caddy container (the official Caddy image is used)
-    - to build above custom Docker image (containing release-file, Node.js and Playwright)
-    - to start that custom image as container
-    - to shutdown all the containers
-    - to view the logs of the containers
-    - no bind mount or host polution (caching `node_modules` etc.) is used
-    - see `docker-compose.yml` file for details
- - All build and deployment is controlled by a few `npm run` scripts (see `package.json` for details)
+- All build/deployment is controlled by `npm run` scripts (see `package.json`)
 
 ### Why?
 
-To offer some backend REST API service, which serves the scraped addon download URLs, used by my WOWCAM application.
+To have a backend REST API service, which scrapes & serves addon download URLs,
+which are used by my WOWCAM application (acting as a simple "Windows client").
 
 ### How?
 
@@ -46,7 +40,7 @@ To offer some backend REST API service, which serves the scraped addon download 
 - By developing everything directly on that machine (remote)
 - By using _VS Code_ with active _Remote SSH_ extension
 - By using an A-RECORD entry for the sub domain
-- By using Caddy for the HTTPS (see above)
+- By using Caddy for the HTTPS support (see above)
 - By deploying everything stable and secure in Docker containers (see above)
 
 #### Have fun.

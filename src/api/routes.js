@@ -1,5 +1,5 @@
 import { ServerResponse, IncomingMessage } from 'node:http';
-import { scrapeAddonSite } from '../curse/playwright.js';
+import { scrapeAddonSite } from '../curse/scrape.js';
 import { evalSiteJson } from '../curse/eval.js';
 import { getFinalDownloadUrl } from '../curse/redirects.js';
 
