@@ -44,7 +44,8 @@ export async function scrape(url, req, res) {
         const realDownloadUrl = await getFinalDownloadUrl(downloadUrl, siteHeaders);
         evalStep.downloadUrlFinal = realDownloadUrl;
     }
-    return success(res, evalStep);
+    const result = createSuccessResult(evalStep);
+    return success(res, result);
 }
 
 function error(res, status, msg) {
@@ -72,4 +73,9 @@ function createPrettyStatus(status) {
         default:
             return 'UNKNOWN';
     }
+}
+
+function createSuccessResult(evalStep) {
+    const { success, error, ...objWithoutSuccessAndError } = evalStep;
+    return objWithoutSuccessAndError;
 }
