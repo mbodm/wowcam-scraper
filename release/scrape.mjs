@@ -163,7 +163,8 @@ async function scrape(url, req, res) {
     const realDownloadUrl = await getFinalDownloadUrl(downloadUrl, siteHeaders);
     evalStep.downloadUrlFinal = realDownloadUrl;
   }
-  return success3(res, evalStep);
+  const result = createSuccessResult(evalStep);
+  return success3(res, result);
 }
 function error3(res, status, msg) {
   const content = { success: false, result: null, error: msg, status: createPrettyStatus(status) };
@@ -188,6 +189,10 @@ function createPrettyStatus(status) {
     default:
       return "UNKNOWN";
   }
+}
+function createSuccessResult(evalStep) {
+  const { success: success4, error: error4, ...objWithoutSuccessAndError } = evalStep;
+  return objWithoutSuccessAndError;
 }
 
 // src/api/server.js
