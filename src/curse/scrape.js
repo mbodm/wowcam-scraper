@@ -118,15 +118,17 @@ function validateFlareSolverrResponseObject(obj) {
 
 function getAddonSiteJson(obj) {
     const html = obj.solution.response;
-    const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/);
-    if (!match) {
-        throw new Error('Could not find "__NEXT_DATA__" JSON script element in Curse addon site');
-    }
-    const content = match[1];
-    if (!content) {
-        throw Error('Found "__NEXT_DATA__" JSON script element in Curse addon site but the element was empty');
-    }
-    return content;
+    const projectJson = extractProjectJson(html);
+    const project = JSON.parse(projectJson);
+    // Wrap it in the old structure format that evalSiteJson() function expects
+    const wrappedJson = {
+        props: {
+            pageProps: {
+                project
+            }
+        }
+    };
+    return JSON.stringify(wrappedJson);
 }
 
 function getAddonSiteHeaders(obj) {
@@ -137,4 +139,55 @@ function getAddonSiteHeaders(obj) {
         throw new Error('Could not determine valid Curse addon site header data (user-agent and cookies)');
     }
     return { userAgent, cookies };
+}
+
+function extractProjectJson(html) {
+    // 1) Find the <script> block (which contains the "self.__next_f.push([1, "17:..." part)
+    const scriptStartMarker = '<script>self.__next_f.push([1, "17:';
+    const scriptStartPos = html.indexOf(scriptStartMarker);
+    if (scriptStartPos === -1) {
+        throw new Error('Could not find the starting <script> tag of Next.js flight transport data (element 17) in Curse addon site');
+    }
+    // 2) Find the closing </script> tag of that block
+    const scriptEndMarker = '</script>';
+    const scriptEndPos = html.indexOf(scriptEndMarker, scriptStartPos);
+    if (scriptEndPos === -1) {
+        throw new Error('Could not find the closing </script> tag of Next.js flight transport data (element 17) in Curse addon site');
+    }
+    // 3) Extract the script content and find where "project" JSON starts
+    const scriptContent = html.substring(scriptStartPos, scriptEndPos);
+    const projectJsonStartMarker = '"project":{';
+    const projectJsonStartPos = scriptContent.indexOf(projectJsonStartMarker);
+    if (projectJsonStartPos === -1) {
+        throw new Error('Could not find start for "project" JSON part of Next.js flight transport data (element 17) in Curse addon site');
+    }
+    // 4) Extract onwards from the first opening brace of "project" until the last matching closing brace
+    const startPos = projectJsonStartPos + projectJsonStartMarker.length - 1;
+    let braceCount = 0;
+    let endPos = -1;
+    for (let i = startPos; i < scriptContent.length; i++) {
+        const char = scriptContent[i];
+        if (char === '{') braceCount++;
+        else if (char === '}') {
+            braceCount--;
+            if (braceCount === 0) {
+                endPos = i + 1;
+                break;
+            }
+        }
+    }
+    if (endPos === -1) {
+        throw new Error('Could not find closing brace for "project" JSON part of Next.js flight transport data (element 17) in Curse addon site');
+    }
+    // 5) Extract the project JSON string (from starting brace to ending brace)
+    const projectJson = scriptContent.substring(startPos, endPos);
+    // 6) Unescape the JSON string (it's escaped because it's inside a JavaScript string)
+    const projectJsonUnescaped = projectJson
+        .replace(/\\"/g, '"')
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '\r')
+        .replace(/\\t/g, '\t')
+        .replace(/\\\\/g, '\\');
+    // 7) Return unescaped "project" JSON string
+    return projectJsonUnescaped;
 }
