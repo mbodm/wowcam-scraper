@@ -142,9 +142,16 @@ function getAddonSiteHeaders(obj) {
 }
 
 function extractProjectJson(html) {
+    console.log('----------');
+    console.log(html);
+    console.log('----------');
     // 1) Find the <script> block (which contains the "self.__next_f.push([1, "17:..." part)
-    const scriptStartMarker = '<script>self.__next_f.push([1, "17:';
-    const scriptStartPos = html.indexOf(scriptStartMarker);
+    const scriptStartMarkerWithSpace = '<script>self.__next_f.push([1, "17:';
+    const scriptStartMarkerWithoutSpace = '<script>self.__next_f.push([1,"17:';
+    // The start marker may or may not contain a space between 1 and 17 (i saw both)
+    const scriptStartPosWithSpace = html.indexOf(scriptStartMarkerWithSpace);
+    const scriptStartPosWithoutSpace = html.indexOf(scriptStartMarkerWithoutSpace);
+    const scriptStartPos = scriptStartPosWithSpace > 0 ? scriptStartMarkerWithSpace : scriptStartPosWithoutSpace;
     if (scriptStartPos === -1) {
         throw new Error('Could not find the starting <script> tag of Next.js flight transport data (element 17) in Curse addon site');
     }
