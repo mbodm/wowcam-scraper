@@ -2,6 +2,7 @@ import { ServerResponse, IncomingMessage } from 'node:http';
 import { scrapeAddonSite } from '../curse/scrape.js';
 import { evalSiteJson } from '../curse/eval.js';
 import { getFinalDownloadUrl } from '../curse/redirects.js';
+import { createPrettyStatus } from '../helper/http.js';
 
 /**
  * This function is the HTTP handler for the "/" endpoint
@@ -61,19 +62,6 @@ function success(res, result) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(content, null, 4));
 };
-
-function createPrettyStatus(status) {
-    switch (status) {
-        case 200:
-            return 'HTTP 200 (OK)';
-        case 400:
-            return 'HTTP 400 (Bad Request)';
-        case 500:
-            return 'HTTP 500 (Internal Server Error)';
-        default:
-            return 'UNKNOWN';
-    }
-}
 
 function createSuccessResult(evalStep) {
     const { success, error, ...objWithoutSuccessAndError } = evalStep;

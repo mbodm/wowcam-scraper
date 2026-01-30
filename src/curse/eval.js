@@ -1,48 +1,23 @@
 /**
- * This function evalutates a Curse addon site's embedded JSON data and returns an object which contains the most important addon properties
- * @param {string} siteJson
- * @returns {object}
+ * This function evaluates a Curse addon site's content and returns the addon download URL as a string
+ * @param {string} siteContent
+ * @returns {string}
  */
-export function evalSiteJson(siteJson) {
-    let obj;
-    try {
-        obj = JSON.parse(siteJson);
-    }
-    catch (err) {
-        console.log(err);
-        return error('The scraped site JSON (from Curse addon site) is not valid JSON.');
-    }
-    const project = obj?.props?.pageProps?.project;
-    if (!project) {
-        return error('Could not determine "project" in scraped site JSON.');
-    }
-    const file = project.mainFile;
-    if (!file) {
-        return error('Could not determine the project\'s "mainFile" in scraped site JSON.');
-    }
-    if (!project.id) {
-        return error('Could not determine the project\'s "id" in scraped site JSON (necessary for download URL).');
-    }
-    if (!file.id) {
-        return error('Could not determine the mainFile\'s "id" in scraped site JSON (necessary for download URL).');
-    }
-    return success({
-        projectId: project.id ?? null,
-        projectName: project.name ?? null,
-        projectSlug: project.slug ?? null,
-        fileId: file.id ?? null,
-        fileName: file.fileName ?? null,
-        fileLength: file.fileLength ?? null,
-        gameVersion: file.primaryGameVersion ?? null,
-        downloadUrl: `https://www.curseforge.com/api/v1/mods/${project.id}/files/${file.id}/download`,
-        downloadUrlFinal: '',
-    });
+export function extractDownloadUrl(siteContent) {
+    const projectId = parse(siteContent, 'project');
+    const fileId = parse(siteContent, 'mainFile');
+    return `https://www.curseforge.com/api/v1/mods/${projectId}/files/${fileId}/download`;
 }
 
-function error(msg) {
-    return { success: false, error: msg };
-}
-
-function success(result) {
-    return { success: true, error: '', ...result };
+function parse(html, search) {
+    const regex = new RegExp(`\\\\"${search}\\\\"\\s*:\\s*{[\\s\\S]*?\\\\"id\\\\"\\s*:\\s*(\\d+)`);
+    const match = html.match(regex);
+    if (!match) {
+        throw new Error(`Could not determine the "${search} id" in scraped site content (necessary for download URL).`);
+    }
+    const id = Number(match[1]);
+    if (!Number.isInteger(id) || id < 1) {
+        throw new Error(`The determined "${search} id" (in scraped site content) is not a positive integer number.`);
+    }
+    return id;
 }

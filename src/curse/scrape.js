@@ -1,41 +1,31 @@
+import { createPrettyStatus } from '../helper/http.js';
+
 /**
- * This function scrapes a Curse addon site and returns the site's embedded JSON data and the scraper's request headers
+ * This function scrapes a Curse addon site (by using FlareSolverr) and returns the site's HTML content and the scraper's request headers
  * @param {string} addonSlug
  * @returns {Promise<object>}
  */
 export async function scrapeAddonSite(addonSlug) {
-    try {
-        const url = `https://www.curseforge.com/wow/addons/${addonSlug}`;
-        const response = await fetch('http://flaresolverr:8191/v1', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                cmd: 'request.get',
-                url,
-                maxTimeout: 30000
-            }),
-        });
-        if (!response.ok) {
-            throw new Error(`The received response status (from internal FlareSolverr API) was HTTP ${response.status}`);
-        }
-        const obj = await response.json();
-        validateFlareSolverrResponseObject(obj);
-        const siteJson = getAddonSiteJson(obj);
-        const siteHeaders = getAddonSiteHeaders(obj);
-        return success({ siteJson, siteHeaders });
+    const flareSolverrUrl = 'http://flaresolverr:8191/v1';
+    const addonSiteUrl = `https://www.curseforge.com/wow/addons/${addonSlug}`;
+    const response = await fetch(flareSolverrUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            cmd: 'request.get',
+            url: addonSiteUrl,
+            maxTimeout: 30000
+        }),
+    });
+    if (!response.ok) {
+        const status = createPrettyStatus(response.status, response.statusText);
+        throw new Error(`Received error response from internal FlareSolverr API: ${status}`);
     }
-    catch (err) {
-        console.log(err);
-        return error('An internal exception occurred while scraping (see log for details).');
-    }
-}
-
-function error(msg) {
-    return { success: false, error: msg };
-}
-
-function success(result) {
-    return { success: true, error: '', ...result };
+    const obj = await response.json();
+    validateFlareSolverrResponseObject(obj);
+    const siteContent = getAddonSiteContent(obj);
+    const siteHeaders = getAddonSiteHeaders(obj);
+    return { siteContent, siteHeaders };
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -99,102 +89,41 @@ function success(result) {
 
 function validateFlareSolverrResponseObject(obj) {
     if (!obj) {
-        throw new Error('The received response object (from internal FlareSolverr API) was null or undefined');
+        throw new Error('The received response object (from internal FlareSolverr API) was null or undefined.');
     }
-    // The .message and .userAgent properties "may" be null or an empty string (and .userAgent also has another validation for headers later)
-    const invalid = !obj.solution || !obj.status || obj.message === undefined ||
-        !obj.solution.status || !obj.solution.headers || !obj.solution.response || !obj.solution.cookies || !obj.solution.userAgent === undefined;
-    if (invalid) {
-        console.log('FlareSolverr response object was:');
-        console.log(obj);
-        throw new Error('The received response content (from internal FlareSolverr API) had not the expected JSON format');
+    if (!obj.status) {
+        throw new Error('The received "status" (from internal FlareSolverr API) was null, undefined, or an empty string.');
+    }
+    // The "message" is allowed to be null or an empty string (but it has to exist)
+    if (obj.message === undefined) {
+        throw new Error('The received "message" (from internal FlareSolverr API) was undefined.');
     }
     if (obj.status.toLowerCase() !== 'ok') {
-        console.log(`FlareSolverr response object "status" was "${obj.status}"`);
-        console.log(`FlareSolverr response object "message" was "${obj.message}"`);
-        throw new Error('The received response object (from internal FlareSolverr API) indicates that scraping was not successful');
+        console.log(`FlareSolverr "status" was "${obj.status}"`);
+        console.log(`FlareSolverr "message" was "${obj.message}"`); // If message is null then it shows "null"
+        throw new Error('The received response object (from internal FlareSolverr API) indicates that scraping was not successful.');
+    }
+    if (!obj.solution) {
+        throw new Error('The received "solution" (from internal FlareSolverr API) was null or undefined.');
     }
 }
 
-function getAddonSiteJson(obj) {
-    const html = obj.solution.response;
-    const projectJson = extractProjectJson(html);
-    const project = JSON.parse(projectJson);
-    // Wrap it in the old structure format that evalSiteJson() function expects
-    const wrappedJson = {
-        props: {
-            pageProps: {
-                project
-            }
-        }
-    };
-    return JSON.stringify(wrappedJson);
+function getAddonSiteContent(obj) {
+    // FlareSolver solution already validated above
+    const siteContent = obj.solution.response;
+    if (!siteContent) {
+        throw new Error('Could not determine Curse addon site HTML content.');
+    }
+    return siteContent;
 }
 
 function getAddonSiteHeaders(obj) {
+    // FlareSolver solution already validated above
     const userAgent = obj.solution.userAgent;
     const cookiesArray = obj.solution.cookies;
-    const cookies = cookiesArray.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
-    if (!userAgent || !cookies) {
-        throw new Error('Could not determine valid Curse addon site header data (user-agent and cookies)');
+    if (!userAgent || !Array.isArray(cookiesArray)) {
+        throw new Error('Could not determine Curse addon site header data (user-agent and cookies).');
     }
-    return { userAgent, cookies };
-}
-
-function extractProjectJson(html) {
-    console.log('----------');
-    console.log(html);
-    console.log('----------');
-    // 1) Find the <script> block (which contains the "self.__next_f.push([1, "17:..." part)
-    const scriptStartMarkerWithSpace = '<script>self.__next_f.push([1, "17:';
-    const scriptStartMarkerWithoutSpace = '<script>self.__next_f.push([1,"17:';
-    // The start marker may or may not contain a space between 1 and 17 (i saw both)
-    const scriptStartPosWithSpace = html.indexOf(scriptStartMarkerWithSpace);
-    const scriptStartPosWithoutSpace = html.indexOf(scriptStartMarkerWithoutSpace);
-    const scriptStartPos = scriptStartPosWithSpace > 0 ? scriptStartMarkerWithSpace : scriptStartPosWithoutSpace;
-    if (scriptStartPos === -1) {
-        throw new Error('Could not find the starting <script> tag of Next.js flight transport data (element 17) in Curse addon site');
-    }
-    // 2) Find the closing </script> tag of that block
-    const scriptEndMarker = '</script>';
-    const scriptEndPos = html.indexOf(scriptEndMarker, scriptStartPos);
-    if (scriptEndPos === -1) {
-        throw new Error('Could not find the closing </script> tag of Next.js flight transport data (element 17) in Curse addon site');
-    }
-    // 3) Extract the script content and find where "project" JSON starts
-    const scriptContent = html.substring(scriptStartPos, scriptEndPos);
-    const projectJsonStartMarker = '"project":{';
-    const projectJsonStartPos = scriptContent.indexOf(projectJsonStartMarker);
-    if (projectJsonStartPos === -1) {
-        throw new Error('Could not find start for "project" JSON part of Next.js flight transport data (element 17) in Curse addon site');
-    }
-    // 4) Extract onwards from the first opening brace of "project" until the last matching closing brace
-    const startPos = projectJsonStartPos + projectJsonStartMarker.length - 1;
-    let braceCount = 0;
-    let endPos = -1;
-    for (let i = startPos; i < scriptContent.length; i++) {
-        const char = scriptContent[i];
-        if (char === '{') braceCount++;
-        else if (char === '}') {
-            braceCount--;
-            if (braceCount === 0) {
-                endPos = i + 1;
-                break;
-            }
-        }
-    }
-    if (endPos === -1) {
-        throw new Error('Could not find closing brace for "project" JSON part of Next.js flight transport data (element 17) in Curse addon site');
-    }
-    // 5) Extract the project JSON string (from starting brace to ending brace)
-    const projectJson = scriptContent.substring(startPos, endPos);
-    // 6) Unescape the JSON string (it's escaped because it's inside a JavaScript string)
-    const projectJsonUnescaped = projectJson
-        .replace(/\\"/g, '"')
-        .replace(/\\n/g, '\n')
-        .replace(/\\r/g, '\r')
-        .replace(/\\t/g, '\t')
-        .replace(/\\\\/g, '\\');
-    // 7) Return unescaped "project" JSON string
-    return projectJsonUnescaped;
+    const cookiesString = cookiesArray.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+    return { userAgent, cookiesString };
 }

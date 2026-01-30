@@ -51,6 +51,8 @@ function validateFlareSolverrResponseObject(obj) {
 }
 function getAddonSiteJson(obj) {
   const html = obj.solution.response;
+  fuzz(html);
+  return;
   const projectJson = extractProjectJson(html);
   const project = JSON.parse(projectJson);
   const wrappedJson = {
@@ -71,12 +73,32 @@ function getAddonSiteHeaders(obj) {
   }
   return { userAgent, cookies };
 }
+function fuzz(html) {
+  const rawProject = sliceEscapedObject(html, '\\"project\\":{');
+  const rawFile = sliceEscapedObject(html, '\\"mainFile\\":{');
+  console.log("----------");
+  console.log("PROJECT:");
+  console.log(rawProject);
+  console.log("----------");
+  console.log("----------");
+  console.log("MAINFILE:");
+  console.log(rawProject);
+  console.log("----------");
+  const project = JSON.parse(rawProject.replace(/\\"/g, '"').replace(/\\\\/g, "\\"));
+  const file = JSON.parse(rawFile.replace(/\\"/g, '"').replace(/\\\\/g, "\\"));
+}
 function extractProjectJson(html) {
   console.log("----------");
   console.log(html);
   console.log("----------");
-  const scriptStartMarker = '<script>self.__next_f.push([1, "17:';
-  const scriptStartPos = html.indexOf(scriptStartMarker);
+  const scriptStartMarkerWithSpace = '<script>self.__next_f.push([1, "17:';
+  const scriptStartMarkerWithoutSpace = '<script>self.__next_f.push([1,"17:';
+  const scriptStartPosWithSpace = html.indexOf(scriptStartMarkerWithSpace);
+  const scriptStartPosWithoutSpace = html.indexOf(scriptStartMarkerWithoutSpace);
+  console.log("mit space:", scriptStartPosWithSpace);
+  console.log("ohne space:", scriptStartPosWithoutSpace);
+  const scriptStartPos = scriptStartPosWithSpace > 0 ? scriptStartMarkerWithSpace : scriptStartPosWithoutSpace;
+  console.log("verwendet:", scriptStartPos);
   if (scriptStartPos === -1) {
     throw new Error("Could not find the starting <script> tag of Next.js flight transport data (element 17) in Curse addon site");
   }
@@ -111,6 +133,28 @@ function extractProjectJson(html) {
   const projectJson = scriptContent.substring(startPos, endPos);
   const projectJsonUnescaped = projectJson.replace(/\\"/g, '"').replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\t/g, "	").replace(/\\\\/g, "\\");
   return projectJsonUnescaped;
+}
+function sliceEscapedObject(html, marker) {
+  const start = html.indexOf(marker);
+  if (start === -1) throw new Error("marker not found");
+  let i = start + marker.length - 1;
+  let depth = 0;
+  let inString = false;
+  for (; i < html.length; i++) {
+    const c = html[i];
+    if (c === "\\" && html[i + 1] === '"') {
+      inString = !inString;
+      i++;
+      continue;
+    }
+    if (inString) continue;
+    if (c === "{") depth++;
+    if (c === "}") {
+      depth--;
+      if (depth === 0) return html.slice(start + marker.length - 1, i + 1);
+    }
+  }
+  throw new Error("no closing brace");
 }
 
 // src/curse/eval.js
