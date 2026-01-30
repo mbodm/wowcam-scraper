@@ -1,59 +1,38 @@
 import { createServer } from 'node:http';
-import { root, scrape } from './routes.js';
+import { handleRootEndpoint, handleScrapeEndpoint } from './routes.js';
 
 /**
- * This function starts a Node.js HTTP server which exposes various API endpoints
+ * This function starts a Node.js HTTP server which exposes some API endpoints
  * @param {number} port 
  */
 export function startServer(port) {
     const server = createServer(async (req, res) => {
-        // Cap URL length to prevent buffer overflow attacks in general (regardless what we do later with URL content)
+        // Cap URL length to prevent buffer overflow attacks in general (regardless of what we do later with URL content)
         if (req.url.length > 255) {
-            res.setHeader('Content-Type', 'text/plain');
-            res.statusCode = 400;
-            res.end('URL is not allowed to exceed a limit of 255 characters');
+            res.writeHead(400).end('Error: URL is not allowed to exceed a limit of 255 characters.');
             return;
         }
-        // Routes
-        const url = createUrl(req);
+        // URL (path and query params)
+        const proto = req.headers['x-forwarded-proto'] ?? 'http';
+        const url = new URL(req.url, `${proto}://${req.headers.host}`);
+        // Methods (only allow GET requests)
+        if (req.method !== 'GET') {
+            res.writeHead(405, { 'Allow': 'GET' }).end('Error: HTTP method not allowed.');
+            return;
+        }
+        // Routes (call appropriate handler)
         switch (url.pathname) {
             case '/':
-                req.method === 'GET' ? root(res) : methodNotAllowed(req, res, url);
+                handleRootEndpoint(res);
                 break;
             case '/scrape':
-                req.method === 'GET' ? scrape(url, req, res) : methodNotAllowed(req, res, url);
-                break;
-            case '/favicon.ico':
-                req.method === 'GET' ? handleFaviconRequest(res) : methodNotAllowed(req, res, url);
+                await handleScrapeEndpoint(url, req, res);
                 break;
             default:
-                routeNotFound(res, url);
+                res.writeHead(404).end(); // Matches '/favicon.ico' route too
                 break;
         }
     });
     server.listen(port, '0.0.0.0');
     console.log(`Server started (http://localhost:${port})`);
-}
-
-function createUrl(req) {
-    const proto = req.headers['x-forwarded-proto'] ?? 'http';
-    const url = new URL(req.url, `${proto}://${req.headers.host}`);
-    return url;
-}
-
-function methodNotAllowed(req, res, url) {
-    console.log(`HTTP ${req.method} method not allowed for requested "${url.pathname}" path`);
-    res.writeHead(405, { 'Content-Type': 'text/plain', 'Allow': 'GET' });
-    res.end();
-}
-
-function handleFaviconRequest(res) {
-    res.statusCode = 404;
-    res.end();
-}
-
-function routeNotFound(res, url) {
-    console.log(`No route handler implemented for requested "${url.pathname}" path`);
-    res.statusCode = 404;
-    res.end();
 }
