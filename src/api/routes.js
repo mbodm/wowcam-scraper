@@ -28,43 +28,20 @@ export async function handleScrapeEndpoint(url, req, res) {
         const scrapeResult = await scrapeAddonSite(addonParam.toLocaleLowerCase());
         const downloadUrl = extractDownloadUrl(scrapeResult.siteContent);
         const downloadUrlFinal = await getFinalDownloadUrl(downloadUrl, scrapeResult.siteHeaders);
-        return success(res, { downloadUrlFinal })
+        const result = {
+            downloadUrlFinal
+        };
+        const content = {
+            success: true,
+            result,
+            error: '',
+            status: createPrettyStatus(200)
+        };
+        res.writeHead(200, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
     }
     catch (err) {
-        return error(req, 500, err);
+        error(req, 500, err);
     }
-
-
-
-
-
-
-
-
-
-
-
-    if (!scrapeStep.success) {
-        const code = scrapeStep.error.includes('page does not exist') ? 400 : 500;
-        return error(res, code, scrapeStep.error);
-    }
-    const siteJson = scrapeStep.siteJson;
-    const pureParam = url.searchParams.get('pure');
-    if (pureParam && pureParam.toLowerCase() === 'true') {
-        return success(res, siteJson);
-    }
-    const evalStep = evalSiteJson(siteJson);
-    if (!evalStep.success) {
-        return error(req, 500, evalStep.error);
-    }
-    const downloadUrl = evalStep.downloadUrl;
-    if (downloadUrl) {
-        const siteHeaders = scrapeStep.siteHeaders;
-        const realDownloadUrl = await getFinalDownloadUrl(downloadUrl, siteHeaders);
-        evalStep.downloadUrlFinal = realDownloadUrl;
-    }
-    const result = createSuccessResult(evalStep);
-    return success(res, result);
 }
 
 function error(res, status, msg) {
@@ -73,11 +50,4 @@ function error(res, status, msg) {
 };
 
 function success(res, result) {
-    const content = { success: true, result, error: '', status: createPrettyStatus(200) };
-    res.writeHead(200, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
 };
-
-function createSuccessResult(evalStep) {
-    const { success, error, ...objWithoutSuccessAndError } = evalStep;
-    return objWithoutSuccessAndError;
-}
