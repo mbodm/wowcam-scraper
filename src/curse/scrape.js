@@ -129,9 +129,8 @@ function getAddonSiteContent(obj) {
     if (!siteContent) {
         throw new Error('Scrape: Could not determine Curse addon site page-content.');
     }
-    const is404PageCheck1 = siteContent.includes('NEXT_HTTP_ERROR_FALLBACK;404');
-    const is404PageCheck2 = siteContent.includes('error-page-section') && siteContent.includes('/images/404/404.webp');
-    if (is404PageCheck1 || is404PageCheck2) {
+    // 404 page detection
+    if (siteContent.includes('NEXT_HTTP_ERROR_FALLBACK;404')) {
         throw new Error('Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API received Curse 404 page).');
     }
     return siteContent;
