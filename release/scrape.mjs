@@ -1,5 +1,5 @@
 // src/api/server.js
-import { createServer } from "node:http";
+import { Server, createServer } from "node:http";
 
 // src/curse/scrape.js
 async function scrapeAddonSite(addonSlug) {
@@ -119,8 +119,13 @@ async function handleScrapeEndpoint(url, res) {
     error(res, 400, 'Missing "addon" query parameter in request URL.');
     return;
   }
+  const addonSlug = addonParam.toLowerCase().trim();
+  if (!/^[a-z0-9-]+$/i.test(addonSlug)) {
+    error(res, 400, 'Invalid "addon" query parameter in request URL (format is not Curse addon-slug format).');
+    return;
+  }
   try {
-    const scrapeResult = await scrapeAddonSite(addonParam.toLocaleLowerCase());
+    const scrapeResult = await scrapeAddonSite(addonSlug);
     const downloadUrl = extractDownloadUrl(scrapeResult.siteContent);
     const downloadUrlFinal = await getFinalDownloadUrl(downloadUrl, scrapeResult.siteHeaders);
     const result = {
@@ -165,13 +170,20 @@ function createPrettyStatus(statusCode) {
 
 // src/api/server.js
 function startServer(port) {
-  const server = createServer(async (req, res) => {
+  const server2 = createServer(async (req, res) => {
     if (req.url.length > 255) {
       res.writeHead(400).end("Error: URL is not allowed to exceed a limit of 255 characters.");
       return;
     }
-    const proto = req.headers["x-forwarded-proto"] ?? "http";
-    const url = new URL(req.url, `${proto}://${req.headers.host}`);
+    let url;
+    try {
+      const proto = req.headers["x-forwarded-proto"] ?? "http";
+      url = new URL(req.url, `${proto}://${req.headers.host}`);
+      if (!url) throw new Error();
+    } catch {
+      res.writeHead(400).end("Error: URL is not valid.");
+      return;
+    }
     if (req.method !== "GET") {
       res.writeHead(405, { "Allow": "GET" }).end("Error: HTTP method not allowed.");
       return;
@@ -188,13 +200,31 @@ function startServer(port) {
         break;
     }
   });
-  server.listen(port, "0.0.0.0");
+  server2.listen(port, "0.0.0.0");
   console.log(`Server started (http://localhost:${port})`);
+  return server2;
 }
 
 // src/app.js
-process.on("SIGTERM", () => {
-  console.log("Received SIGTERM signal (and therefore exit process now)");
-  process.exit(0);
-});
-startServer(8e3);
+var server = startServer(8e3);
+process.on("SIGTERM", exitGracefully);
+process.on("SIGINT", exitGracefully);
+function exitGracefully(signal) {
+  if (!server) {
+    return;
+  }
+  console.log(`Closing server now, cause received ${signal}.`);
+  server.close((err) => {
+    if (err) {
+      console.error("Forcing exit, cause error occurred while closing server: ", err);
+      process.exit(1);
+    } else {
+      console.log("Server successfully closed.");
+      process.exit(0);
+    }
+  });
+  setTimeout(() => {
+    console.error("Forcing exit, cause timeout occurred while closing server.");
+    process.exit(1);
+  }, 10 * 1e3);
+}

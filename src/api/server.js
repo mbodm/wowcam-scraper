@@ -1,9 +1,10 @@
-import { createServer } from 'node:http';
+import { Server, createServer } from 'node:http';
 import { handleRootEndpoint, handleScrapeEndpoint } from './routes.js';
 
 /**
  * This function starts a Node.js HTTP server which exposes some API endpoints
- * @param {number} port 
+ * @param {number} port
+ * @returns {Server<IncomingMessage, ServerResponse>} server
  */
 export function startServer(port) {
     const server = createServer(async (req, res) => {
@@ -42,4 +43,5 @@ export function startServer(port) {
     });
     server.listen(port, '0.0.0.0');
     console.log(`Server started (http://localhost:${port})`);
+    return server;
 }
