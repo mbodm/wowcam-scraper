@@ -22,8 +22,13 @@ export async function handleScrapeEndpoint(url, res) {
         error(res, 400, 'Missing "addon" query parameter in request URL.');
         return;
     }
+    const addonSlug = addonParam.toLowerCase().trim();
+    if (!/^[a-z0-9-]+$/i.test(addonSlug)) {
+        error(res, 400, 'Invalid "addon" query parameter in request URL (format is not Curse addon-slug format).');
+        return;
+    }
     try {
-        const scrapeResult = await scrapeAddonSite(addonParam.toLocaleLowerCase());
+        const scrapeResult = await scrapeAddonSite(addonSlug);
         const downloadUrl = extractDownloadUrl(scrapeResult.siteContent);
         const downloadUrlFinal = await getFinalDownloadUrl(downloadUrl, scrapeResult.siteHeaders);
         const result = {

@@ -113,7 +113,7 @@ async function getFinalDownloadUrl(scrapedDownloadUrl, scrapedSiteHeaders) {
 function handleRootEndpoint(res) {
   res.writeHead(200).end("hello");
 }
-async function handleScrapeEndpoint(url, req, res) {
+async function handleScrapeEndpoint(url, res) {
   const addonParam = url.searchParams.get("addon");
   if (!addonParam) {
     error(res, 400, 'Missing "addon" query parameter in request URL.');
@@ -128,7 +128,8 @@ async function handleScrapeEndpoint(url, req, res) {
     };
     success(res, result);
   } catch (err) {
-    error(req, 500, err);
+    const msg = err instanceof Error ? err.message : "Unknown error occurred.";
+    error(res, 500, msg);
   }
 }
 function error(res, status, msg) {
@@ -138,7 +139,7 @@ function error(res, status, msg) {
     error: msg,
     status: createPrettyStatus(status)
   };
-  res.writeHead(status, "Content-Type", "application/json").end(JSON.stringify(content, null, 4));
+  res.writeHead(status, { "Content-Type": "application/json" }).end(JSON.stringify(content, null, 4));
 }
 function success(res, result) {
   const content = {
@@ -147,7 +148,7 @@ function success(res, result) {
     error: "",
     status: createPrettyStatus(200)
   };
-  res.writeHead(200, "Content-Type", "application/json").end(JSON.stringify(content, null, 4));
+  res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify(content, null, 4));
 }
 function createPrettyStatus(statusCode) {
   switch (statusCode) {
@@ -180,7 +181,7 @@ function startServer(port) {
         handleRootEndpoint(res);
         break;
       case "/scrape":
-        await handleScrapeEndpoint(url, req, res);
+        await handleScrapeEndpoint(url, res);
         break;
       default:
         res.writeHead(404).end();

@@ -12,9 +12,16 @@ export function startServer(port) {
             res.writeHead(400).end('Error: URL is not allowed to exceed a limit of 255 characters.');
             return;
         }
-        // URL (path and query params)
-        const proto = req.headers['x-forwarded-proto'] ?? 'http';
-        const url = new URL(req.url, `${proto}://${req.headers.host}`);
+        // Get URL class instance (for path-name and query-params)
+        let url;
+        try {
+            const proto = req.headers['x-forwarded-proto'] ?? 'http';
+            url = new URL(req.url, `${proto}://${req.headers.host}`); // URL class can throw
+            if (!url) throw new Error(); // URL class can return falsy value
+        } catch {
+            res.writeHead(400).end('Error: URL is not valid.');
+            return;
+        }
         // Methods (only allow GET requests)
         if (req.method !== 'GET') {
             res.writeHead(405, { 'Allow': 'GET' }).end('Error: HTTP method not allowed.');
