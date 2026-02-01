@@ -113,6 +113,9 @@ function validateCurseResponseStatus(obj) {
         throw new Error('Scrape: Could not determine Curse addon site response-status.');
     }
     if (status === 404) {
+        // Note:
+        // This check is not reliable. We do a second check below, inspecting the site content.
+        // Because FlareSolverr may show HTTP 200 OK, but receives a Curse 404 page as content.
         throw new Error('Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API showed HTTP 404).');
     }
     if (status !== 200) {
@@ -125,6 +128,11 @@ function getAddonSiteContent(obj) {
     const siteContent = obj.solution.response;
     if (!siteContent) {
         throw new Error('Scrape: Could not determine Curse addon site page-content.');
+    }
+    const is404PageCheck1 = siteContent.includes('NEXT_HTTP_ERROR_FALLBACK;404');
+    const is404PageCheck2 = siteContent.includes('error-page-section') && siteContent.includes('/images/404/404.webp');
+    if (is404PageCheck1 || is404PageCheck2) {
+        throw new Error('Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API received Curse 404 page).');
     }
     return siteContent;
 }

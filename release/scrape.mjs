@@ -22,6 +22,16 @@ async function scrapeAddonSite(addonSlug) {
   validateCurseResponseStatus(obj);
   const siteContent = getAddonSiteContent(obj);
   const siteHeaders = getAddonSiteHeaders(obj);
+  const headers = {
+    "User-Agent": siteHeaders.userAgent,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7"
+  };
+  const response404 = await fetch(addonSiteUrl, { headers });
+  console.log("da real status", response404.status);
+  if (response404.status === 404) {
+    throw new Error(`DAA RUUULE`);
+  }
   return { siteContent, siteHeaders };
 }
 function validateFlareSolverrResponseObject(obj) {
@@ -44,8 +54,12 @@ function validateFlareSolverrResponseObject(obj) {
   }
 }
 function validateCurseResponseStatus(obj) {
-  const status = obj.solution.status;
-  if (!status) {
+  console.log("FS status:", obj.status);
+  console.log("FS message:", obj.message);
+  console.log("FS solution status:", obj.solution.status);
+  console.log("FS solution url:", obj.solution.url);
+  const status = Number(obj.solution.status);
+  if (Number.isNaN(status) || status < 1 || status > 1024) {
     throw new Error("Scrape: Could not determine Curse addon site response-status.");
   }
   if (status === 404) {
