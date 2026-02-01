@@ -108,8 +108,8 @@ function validateFlareSolverrResponseObject(obj) {
 
 function validateCurseResponseStatus(obj) {
     // FlareSolver obj was already validated above
-    const status = obj.solution.status;
-    if (!status) {
+    const status = Number(obj.solution.status); // Number conversion never throws
+    if (Number.isNaN(status) || status < 1 || status > 1024) {
         throw new Error('Scrape: Could not determine Curse addon site response-status.');
     }
     if (status === 404) {
