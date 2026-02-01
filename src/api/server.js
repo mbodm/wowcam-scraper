@@ -26,7 +26,7 @@ export function startServer(port) {
                 handleRootEndpoint(res);
                 break;
             case '/scrape':
-                await handleScrapeEndpoint(url, req, res);
+                await handleScrapeEndpoint(url, res);
                 break;
             default:
                 res.writeHead(404).end(); // Matches '/favicon.ico' route too

@@ -14,10 +14,9 @@ export function handleRootEndpoint(res) {
 /**
  * This function handles the "/scrape" endpoint
  * @param {URL} url
- * @param {IncomingMessage} req
  * @param {ServerResponse<IncomingMessage>} res
  */
-export async function handleScrapeEndpoint(url, req, res) {
+export async function handleScrapeEndpoint(url, res) {
     const addonParam = url.searchParams.get('addon');
     if (!addonParam) {
         error(res, 400, 'Missing "addon" query parameter in request URL.');
@@ -33,7 +32,8 @@ export async function handleScrapeEndpoint(url, req, res) {
         success(res, result);
     }
     catch (err) {
-        error(req, 500, err);
+        const msg = err instanceof Error ? err.message : 'Unknown error occurred.';
+        error(res, 500, msg);
     }
 }
 
@@ -44,7 +44,8 @@ function error(res, status, msg) {
         error: msg,
         status: createPrettyStatus(status)
     };
-    res.writeHead(status, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
+    res.writeHead(status, { 'Content-Type': 'application/json' }).end(JSON.stringify(content, null, 4));
+
 };
 
 function success(res, result) {
@@ -54,7 +55,7 @@ function success(res, result) {
         error: '',
         status: createPrettyStatus(200)
     };
-    res.writeHead(200, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
+    res.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(content, null, 4));
 }
 
 function createPrettyStatus(statusCode) {

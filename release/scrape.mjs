@@ -3,269 +3,154 @@ import { createServer } from "node:http";
 
 // src/curse/scrape.js
 async function scrapeAddonSite(addonSlug) {
-  try {
-    const url = `https://www.curseforge.com/wow/addons/${addonSlug}`;
-    const response = await fetch("http://flaresolverr:8191/v1", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        cmd: "request.get",
-        url,
-        maxTimeout: 3e4
-      })
-    });
-    if (!response.ok) {
-      throw new Error(`The received response status (from internal FlareSolverr API) was HTTP ${response.status}`);
-    }
-    const obj = await response.json();
-    validateFlareSolverrResponseObject(obj);
-    const siteJson = getAddonSiteJson(obj);
-    const siteHeaders = getAddonSiteHeaders(obj);
-    return success({ siteJson, siteHeaders });
-  } catch (err) {
-    console.log(err);
-    return error("An internal exception occurred while scraping (see log for details).");
+  const flareSolverrUrl = "http://flaresolverr:8191/v1";
+  const addonSiteUrl = `https://www.curseforge.com/wow/addons/${addonSlug}`;
+  const response = await fetch(flareSolverrUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      cmd: "request.get",
+      url: addonSiteUrl,
+      maxTimeout: 3e4
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Scrape: Received error response from internal FlareSolverr API (HTTP ${response.status}).`);
   }
-}
-function error(msg) {
-  return { success: false, error: msg };
-}
-function success(result) {
-  return { success: true, error: "", ...result };
+  const obj = await response.json();
+  validateFlareSolverrResponseObject(obj);
+  validateCurseResponseStatus(obj);
+  const siteContent = getAddonSiteContent(obj);
+  const siteHeaders = getAddonSiteHeaders(obj);
+  return { siteContent, siteHeaders };
 }
 function validateFlareSolverrResponseObject(obj) {
   if (!obj) {
-    throw new Error("The received response object (from internal FlareSolverr API) was null or undefined");
+    throw new Error("Scrape: The received response object, from internal FlareSolverr API, was null or undefined.");
   }
-  const invalid = !obj.solution || !obj.status || obj.message === void 0 || !obj.solution.status || !obj.solution.headers || !obj.solution.response || !obj.solution.cookies || !obj.solution.userAgent === void 0;
-  if (invalid) {
-    console.log("FlareSolverr response object was:");
-    console.log(obj);
-    throw new Error("The received response content (from internal FlareSolverr API) had not the expected JSON format");
+  if (!obj.status) {
+    throw new Error('Scrape: The received "status", from internal FlareSolverr API, was null, undefined, or an empty string.');
+  }
+  if (obj.message === void 0) {
+    throw new Error('Scrape: The received "message", from internal FlareSolverr API, was undefined.');
   }
   if (obj.status.toLowerCase() !== "ok") {
-    console.log(`FlareSolverr response object "status" was "${obj.status}"`);
-    console.log(`FlareSolverr response object "message" was "${obj.message}"`);
-    throw new Error("The received response object (from internal FlareSolverr API) indicates that scraping was not successful");
+    console.log(`FlareSolverr "status" was "${obj.status}"`);
+    console.log(`FlareSolverr "message" was "${obj.message}"`);
+    throw new Error("Scrape: The received response object, from internal FlareSolverr API, indicates that scraping was not successful.");
+  }
+  if (!obj.solution) {
+    throw new Error('Scrape: The received "solution", from internal FlareSolverr API, was null or undefined.');
   }
 }
-function getAddonSiteJson(obj) {
-  const html = obj.solution.response;
-  fuzz(html);
-  return;
-  const projectJson = extractProjectJson(html);
-  const project = JSON.parse(projectJson);
-  const wrappedJson = {
-    props: {
-      pageProps: {
-        project
-      }
-    }
-  };
-  return JSON.stringify(wrappedJson);
+function validateCurseResponseStatus(obj) {
+  const status = obj.solution.status;
+  if (!status) {
+    throw new Error("Scrape: Could not determine Curse addon site response-status.");
+  }
+  if (status === 404) {
+    throw new Error("Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API showed HTTP 404).");
+  }
+  if (status !== 200) {
+    throw new Error(`Scrape: Curse addon site response status was not OK (internal FlareSolverr API showed HTTP ${status}).`);
+  }
+}
+function getAddonSiteContent(obj) {
+  const siteContent = obj.solution.response;
+  if (!siteContent) {
+    throw new Error("Scrape: Could not determine Curse addon site page-content.");
+  }
+  return siteContent;
 }
 function getAddonSiteHeaders(obj) {
   const userAgent = obj.solution.userAgent;
   const cookiesArray = obj.solution.cookies;
-  const cookies = cookiesArray.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
-  if (!userAgent || !cookies) {
-    throw new Error("Could not determine valid Curse addon site header data (user-agent and cookies)");
+  if (!userAgent || !Array.isArray(cookiesArray)) {
+    throw new Error("Scrape: Could not determine Curse addon site header-data (user-agent and cookies).");
   }
-  return { userAgent, cookies };
-}
-function fuzz(html) {
-  const rawProject = sliceEscapedObject(html, '\\"project\\":{');
-  const rawFile = sliceEscapedObject(html, '\\"mainFile\\":{');
-  console.log("----------");
-  console.log("PROJECT:");
-  console.log(rawProject);
-  console.log("----------");
-  console.log("----------");
-  console.log("MAINFILE:");
-  console.log(rawProject);
-  console.log("----------");
-  const project = JSON.parse(rawProject.replace(/\\"/g, '"').replace(/\\\\/g, "\\"));
-  const file = JSON.parse(rawFile.replace(/\\"/g, '"').replace(/\\\\/g, "\\"));
-}
-function extractProjectJson(html) {
-  console.log("----------");
-  console.log(html);
-  console.log("----------");
-  const scriptStartMarkerWithSpace = '<script>self.__next_f.push([1, "17:';
-  const scriptStartMarkerWithoutSpace = '<script>self.__next_f.push([1,"17:';
-  const scriptStartPosWithSpace = html.indexOf(scriptStartMarkerWithSpace);
-  const scriptStartPosWithoutSpace = html.indexOf(scriptStartMarkerWithoutSpace);
-  console.log("mit space:", scriptStartPosWithSpace);
-  console.log("ohne space:", scriptStartPosWithoutSpace);
-  const scriptStartPos = scriptStartPosWithSpace > 0 ? scriptStartMarkerWithSpace : scriptStartPosWithoutSpace;
-  console.log("verwendet:", scriptStartPos);
-  if (scriptStartPos === -1) {
-    throw new Error("Could not find the starting <script> tag of Next.js flight transport data (element 17) in Curse addon site");
-  }
-  const scriptEndMarker = "</script>";
-  const scriptEndPos = html.indexOf(scriptEndMarker, scriptStartPos);
-  if (scriptEndPos === -1) {
-    throw new Error("Could not find the closing </script> tag of Next.js flight transport data (element 17) in Curse addon site");
-  }
-  const scriptContent = html.substring(scriptStartPos, scriptEndPos);
-  const projectJsonStartMarker = '"project":{';
-  const projectJsonStartPos = scriptContent.indexOf(projectJsonStartMarker);
-  if (projectJsonStartPos === -1) {
-    throw new Error('Could not find start for "project" JSON part of Next.js flight transport data (element 17) in Curse addon site');
-  }
-  const startPos = projectJsonStartPos + projectJsonStartMarker.length - 1;
-  let braceCount = 0;
-  let endPos = -1;
-  for (let i = startPos; i < scriptContent.length; i++) {
-    const char = scriptContent[i];
-    if (char === "{") braceCount++;
-    else if (char === "}") {
-      braceCount--;
-      if (braceCount === 0) {
-        endPos = i + 1;
-        break;
-      }
-    }
-  }
-  if (endPos === -1) {
-    throw new Error('Could not find closing brace for "project" JSON part of Next.js flight transport data (element 17) in Curse addon site');
-  }
-  const projectJson = scriptContent.substring(startPos, endPos);
-  const projectJsonUnescaped = projectJson.replace(/\\"/g, '"').replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\t/g, "	").replace(/\\\\/g, "\\");
-  return projectJsonUnescaped;
-}
-function sliceEscapedObject(html, marker) {
-  const start = html.indexOf(marker);
-  if (start === -1) throw new Error("marker not found");
-  let i = start + marker.length - 1;
-  let depth = 0;
-  let inString = false;
-  for (; i < html.length; i++) {
-    const c = html[i];
-    if (c === "\\" && html[i + 1] === '"') {
-      inString = !inString;
-      i++;
-      continue;
-    }
-    if (inString) continue;
-    if (c === "{") depth++;
-    if (c === "}") {
-      depth--;
-      if (depth === 0) return html.slice(start + marker.length - 1, i + 1);
-    }
-  }
-  throw new Error("no closing brace");
+  const kvpStrings = cookiesArray.map((arrayItem) => `${arrayItem.name}=${arrayItem.value}`);
+  const cookiesString = kvpStrings.join("; ");
+  return { userAgent, cookiesString };
 }
 
 // src/curse/eval.js
-function evalSiteJson(siteJson) {
-  let obj;
-  try {
-    obj = JSON.parse(siteJson);
-  } catch (err) {
-    console.log(err);
-    return error2("The scraped site JSON (from Curse addon site) is not valid JSON.");
-  }
-  const project = obj?.props?.pageProps?.project;
-  if (!project) {
-    return error2('Could not determine "project" in scraped site JSON.');
-  }
-  const file = project.mainFile;
-  if (!file) {
-    return error2(`Could not determine the project's "mainFile" in scraped site JSON.`);
-  }
-  if (!project.id) {
-    return error2(`Could not determine the project's "id" in scraped site JSON (necessary for download URL).`);
-  }
-  if (!file.id) {
-    return error2(`Could not determine the mainFile's "id" in scraped site JSON (necessary for download URL).`);
-  }
-  return success2({
-    projectId: project.id ?? null,
-    projectName: project.name ?? null,
-    projectSlug: project.slug ?? null,
-    fileId: file.id ?? null,
-    fileName: file.fileName ?? null,
-    fileLength: file.fileLength ?? null,
-    gameVersion: file.primaryGameVersion ?? null,
-    downloadUrl: `https://www.curseforge.com/api/v1/mods/${project.id}/files/${file.id}/download`,
-    downloadUrlFinal: ""
-  });
+function extractDownloadUrl(siteContent) {
+  const projectId = parse(siteContent, "project");
+  const fileId = parse(siteContent, "mainFile");
+  return `https://www.curseforge.com/api/v1/mods/${projectId}/files/${fileId}/download`;
 }
-function error2(msg) {
-  return { success: false, error: msg };
-}
-function success2(result) {
-  return { success: true, error: "", ...result };
+function parse(html, search) {
+  const regex = new RegExp(`\\\\"${search}\\\\"\\s*:\\s*{[\\s\\S]*?\\\\"id\\\\"\\s*:\\s*(\\d+)`);
+  const match = html.match(regex);
+  if (!match) {
+    throw new Error(`Eval: Could not determine the "${search} id" in scraped site content (necessary for download URL).`);
+  }
+  const id = Number(match[1]);
+  if (!Number.isInteger(id) || id < 1) {
+    throw new Error(`Eval: The determined "${search} id", in scraped site content, is not a positive integer number.`);
+  }
+  return id;
 }
 
 // src/curse/redirects.js
 async function getFinalDownloadUrl(scrapedDownloadUrl, scrapedSiteHeaders) {
-  try {
-    const headers = {
-      "User-Agent": scrapedSiteHeaders.userAgent,
-      "Cookie": scrapedSiteHeaders.cookies,
-      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-      "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
-      "Accept-Encoding": "gzip, deflate, br",
-      "Connection": "keep-alive"
-    };
-    const response = await fetch(scrapedDownloadUrl, { method: "GET", headers });
-    return response.url;
-  } catch (err) {
-    console.log(err);
-    return "Error: Could not fetch the final download URL (after all redirects).";
+  const headers = {
+    "User-Agent": scrapedSiteHeaders.userAgent,
+    "Cookie": scrapedSiteHeaders.cookiesString,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive"
+  };
+  const response = await fetch(scrapedDownloadUrl, { method: "GET", headers, redirect: "follow" });
+  if (!response.ok) {
+    throw new Error(`Redirects: Received error response while following Curse redirects (HTTP ${response.status}).`);
   }
+  return response.url;
 }
 
 // src/api/routes.js
-function root(res) {
-  res.setHeader("Content-Type", "text/plain");
-  res.statusCode = 200;
-  res.end("hello");
+function handleRootEndpoint(res) {
+  res.writeHead(200).end("hello");
 }
-async function scrape(url, req, res) {
+async function handleScrapeEndpoint(url, req, res) {
   const addonParam = url.searchParams.get("addon");
   if (!addonParam) {
-    return error3(res, 400, 'Missing "addon" query parameter in request URL.');
+    error(res, 400, 'Missing "addon" query parameter in request URL.');
+    return;
   }
-  const scrapeStep = await scrapeAddonSite(addonParam.toLocaleLowerCase());
-  if (!scrapeStep.success) {
-    const code = scrapeStep.error.includes("page does not exist") ? 400 : 500;
-    return error3(res, code, scrapeStep.error);
+  try {
+    const scrapeResult = await scrapeAddonSite(addonParam.toLocaleLowerCase());
+    const downloadUrl = extractDownloadUrl(scrapeResult.siteContent);
+    const downloadUrlFinal = await getFinalDownloadUrl(downloadUrl, scrapeResult.siteHeaders);
+    const result = {
+      downloadUrlFinal
+    };
+    success(res, result);
+  } catch (err) {
+    error(req, 500, err);
   }
-  const siteJson = scrapeStep.siteJson;
-  const pureParam = url.searchParams.get("pure");
-  if (pureParam && pureParam.toLowerCase() === "true") {
-    return success3(res, siteJson);
-  }
-  const evalStep = evalSiteJson(siteJson);
-  if (!evalStep.success) {
-    return error3(req, 500, evalStep.error);
-  }
-  const downloadUrl = evalStep.downloadUrl;
-  if (downloadUrl) {
-    const siteHeaders = scrapeStep.siteHeaders;
-    const realDownloadUrl = await getFinalDownloadUrl(downloadUrl, siteHeaders);
-    evalStep.downloadUrlFinal = realDownloadUrl;
-  }
-  const result = createSuccessResult(evalStep);
-  return success3(res, result);
 }
-function error3(res, status, msg) {
-  const content = { success: false, result: null, error: msg, status: createPrettyStatus(status) };
-  res.statusCode = status;
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(content, null, 4));
+function error(res, status, msg) {
+  const content = {
+    success: false,
+    result: null,
+    error: msg,
+    status: createPrettyStatus(status)
+  };
+  res.writeHead(status, "Content-Type", "application/json").end(JSON.stringify(content, null, 4));
 }
-function success3(res, result) {
-  const content = { success: true, result, error: "", status: createPrettyStatus(200) };
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(content, null, 4));
+function success(res, result) {
+  const content = {
+    success: true,
+    result,
+    error: "",
+    status: createPrettyStatus(200)
+  };
+  res.writeHead(200, "Content-Type", "application/json").end(JSON.stringify(content, null, 4));
 }
-function createPrettyStatus(status) {
-  switch (status) {
+function createPrettyStatus(statusCode) {
+  switch (statusCode) {
     case 200:
       return "HTTP 200 (OK)";
     case 400:
@@ -273,60 +158,37 @@ function createPrettyStatus(status) {
     case 500:
       return "HTTP 500 (Internal Server Error)";
     default:
-      return "UNKNOWN";
+      return `HTTP ${statusCode}`;
   }
-}
-function createSuccessResult(evalStep) {
-  const { success: success4, error: error4, ...objWithoutSuccessAndError } = evalStep;
-  return objWithoutSuccessAndError;
 }
 
 // src/api/server.js
 function startServer(port) {
   const server = createServer(async (req, res) => {
     if (req.url.length > 255) {
-      res.setHeader("Content-Type", "text/plain");
-      res.statusCode = 400;
-      res.end("URL is not allowed to exceed a limit of 255 characters");
+      res.writeHead(400).end("Error: URL is not allowed to exceed a limit of 255 characters.");
       return;
     }
-    const url = createUrl(req);
+    const proto = req.headers["x-forwarded-proto"] ?? "http";
+    const url = new URL(req.url, `${proto}://${req.headers.host}`);
+    if (req.method !== "GET") {
+      res.writeHead(405, { "Allow": "GET" }).end("Error: HTTP method not allowed.");
+      return;
+    }
     switch (url.pathname) {
       case "/":
-        req.method === "GET" ? root(res) : methodNotAllowed(req, res, url);
+        handleRootEndpoint(res);
         break;
       case "/scrape":
-        req.method === "GET" ? scrape(url, req, res) : methodNotAllowed(req, res, url);
-        break;
-      case "/favicon.ico":
-        req.method === "GET" ? handleFaviconRequest(res) : methodNotAllowed(req, res, url);
+        await handleScrapeEndpoint(url, req, res);
         break;
       default:
-        routeNotFound(res, url);
+        res.writeHead(404).end();
         break;
     }
   });
   server.listen(port, "0.0.0.0");
   console.log(`Server started (http://localhost:${port})`);
-}
-function createUrl(req) {
-  const proto = req.headers["x-forwarded-proto"] ?? "http";
-  const url = new URL(req.url, `${proto}://${req.headers.host}`);
-  return url;
-}
-function methodNotAllowed(req, res, url) {
-  console.log(`HTTP ${req.method} method not allowed for requested "${url.pathname}" path`);
-  res.writeHead(405, { "Content-Type": "text/plain", "Allow": "GET" });
-  res.end();
-}
-function handleFaviconRequest(res) {
-  res.statusCode = 404;
-  res.end();
-}
-function routeNotFound(res, url) {
-  console.log(`No route handler implemented for requested "${url.pathname}" path`);
-  res.statusCode = 404;
-  res.end();
 }
 
 // src/app.js
