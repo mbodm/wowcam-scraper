@@ -1,5 +1,3 @@
-import { createPrettyStatus } from '../helper/http.js';
-
 /**
  * This function follows all redirects of the scraped Curse addon download URL and returns the final "real" zip file download URL
  * @param {string} scrapedDownloadUrl
@@ -17,8 +15,7 @@ export async function getFinalDownloadUrl(scrapedDownloadUrl, scrapedSiteHeaders
     };
     const response = await fetch(scrapedDownloadUrl, { method: 'GET', headers, redirect: 'follow' });
     if (!response.ok) {
-        const status = createPrettyStatus(response.status, response.statusText);
-        throw new Error(`Received error response while following Curse redirects: ${status}`);
+        throw new Error(`Redirects: Received error response while following Curse redirects (HTTP ${response.status}).`);
     }
     return response.url;
 }

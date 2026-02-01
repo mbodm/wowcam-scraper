@@ -1,5 +1,3 @@
-import { createPrettyStatus } from '../helper/http.js';
-
 /**
  * This function scrapes a Curse addon site (by using FlareSolverr) and returns the site's HTML content and the scraper's request headers
  * @param {string} addonSlug
@@ -18,12 +16,11 @@ export async function scrapeAddonSite(addonSlug) {
         }),
     });
     if (!response.ok) {
-        const status = createPrettyStatus(response.status, response.statusText);
-        throw new Error(`Received error response from internal FlareSolverr API: ${status}`);
+        throw new Error(`Scrape: Received error response from internal FlareSolverr API (HTTP ${response.status}).`);
     }
     const obj = await response.json();
     validateFlareSolverrResponseObject(obj);
-    checkCurseResponseStatusCode(obj);
+    validateCurseResponseStatus(obj);
     const siteContent = getAddonSiteContent(obj);
     const siteHeaders = getAddonSiteHeaders(obj);
     return { siteContent, siteHeaders };
@@ -90,56 +87,56 @@ export async function scrapeAddonSite(addonSlug) {
 
 function validateFlareSolverrResponseObject(obj) {
     if (!obj) {
-        throw new Error('Scraping: The received response object (from internal FlareSolverr API) was null or undefined.');
+        throw new Error('Scrape: The received response object, from internal FlareSolverr API, was null or undefined.');
     }
     if (!obj.status) {
-        throw new Error('Scraping: The received "status" (from internal FlareSolverr API) was null, undefined, or an empty string.');
+        throw new Error('Scrape: The received "status", from internal FlareSolverr API, was null, undefined, or an empty string.');
     }
     // The "message" is allowed to be null or an empty string (but it has to exist)
     if (obj.message === undefined) {
-        throw new Error('Scraping: The received "message" (from internal FlareSolverr API) was undefined.');
+        throw new Error('Scrape: The received "message", from internal FlareSolverr API, was undefined.');
     }
     if (obj.status.toLowerCase() !== 'ok') {
         console.log(`FlareSolverr "status" was "${obj.status}"`);
         console.log(`FlareSolverr "message" was "${obj.message}"`); // If message is null then it shows "null"
-        throw new Error('Scraping: The received response object (from internal FlareSolverr API) indicates that scraping was not successful.');
+        throw new Error('Scrape: The received response object, from internal FlareSolverr API, indicates that scraping was not successful.');
     }
     if (!obj.solution) {
-        throw new Error('Scraping: The received "solution" (from internal FlareSolverr API) was null or undefined.');
+        throw new Error('Scrape: The received "solution", from internal FlareSolverr API, was null or undefined.');
     }
 }
 
-function checkCurseResponseStatusCode(obj) {
-    // FlareSolver solution already validated above
+function validateCurseResponseStatus(obj) {
+    // FlareSolver obj was already validated above
     const status = obj.solution.status;
     if (!status) {
-        throw new Error('Scraping: Could not determine Curse addon site response-status.');
+        throw new Error('Scrape: Could not determine Curse addon site response-status.');
     }
     if (status === 404) {
-        throw new Error('Scraping: Curse addon site not exists for given addon name (internal FlareSolverr API showed HTTP 404).');
+        throw new Error('Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API showed HTTP 404).');
     }
     if (status !== 200) {
-        throw new Error(`Scraping: Curse addon site response status was not OK (internal FlareSolverr API showed HTTP ${status}).`);
+        throw new Error(`Scrape: Curse addon site response status was not OK (internal FlareSolverr API showed HTTP ${status}).`);
     }
 }
 
 function getAddonSiteContent(obj) {
-    // FlareSolver solution already validated above
+    // FlareSolver obj was already validated above
     const siteContent = obj.solution.response;
     if (!siteContent) {
-        throw new Error('Scraping: Could not determine Curse addon site page-content.');
+        throw new Error('Scrape: Could not determine Curse addon site page-content.');
     }
-    if (obj.solution.status === )
-        return siteContent;
+    return siteContent;
 }
 
 function getAddonSiteHeaders(obj) {
-    // FlareSolver solution already validated above
+    // FlareSolver obj was already validated above
     const userAgent = obj.solution.userAgent;
     const cookiesArray = obj.solution.cookies;
     if (!userAgent || !Array.isArray(cookiesArray)) {
-        throw new Error('Scraping: Could not determine Curse addon site header-data (user-agent and cookies).');
+        throw new Error('Scrape: Could not determine Curse addon site header-data (user-agent and cookies).');
     }
-    const cookiesString = cookiesArray.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+    const kvpStrings = cookiesArray.map(arrayItem => `${arrayItem.name}=${arrayItem.value}`);
+    const cookiesString = kvpStrings.join('; '); // Empty array -> Empty string ("")
     return { userAgent, cookiesString };
 }

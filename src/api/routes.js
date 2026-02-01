@@ -2,10 +2,9 @@ import { ServerResponse, IncomingMessage } from 'node:http';
 import { scrapeAddonSite } from '../curse/scrape.js';
 import { extractDownloadUrl } from '../curse/eval.js';
 import { getFinalDownloadUrl } from '../curse/redirects.js';
-import { createPrettyStatus } from '../helper/http.js';
 
 /**
- * This function is the handler for the "/" endpoint
+ * This function handles the "/" endpoint
  * @param {ServerResponse<IncomingMessage>} res
  */
 export function handleRootEndpoint(res) {
@@ -13,7 +12,7 @@ export function handleRootEndpoint(res) {
 }
 
 /**
- * This function is the handler for the "/scrape" endpoint
+ * This function handles the "/scrape" endpoint
  * @param {URL} url
  * @param {IncomingMessage} req
  * @param {ServerResponse<IncomingMessage>} res
@@ -31,13 +30,7 @@ export async function handleScrapeEndpoint(url, req, res) {
         const result = {
             downloadUrlFinal
         };
-        const content = {
-            success: true,
-            result,
-            error: '',
-            status: createPrettyStatus(200)
-        };
-        res.writeHead(200, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
+        success(res, result);
     }
     catch (err) {
         error(req, 500, err);
@@ -45,9 +38,34 @@ export async function handleScrapeEndpoint(url, req, res) {
 }
 
 function error(res, status, msg) {
-    const content = { success: false, result: null, error: msg, status: createPrettyStatus(status) };
+    const content = {
+        success: false,
+        result: null,
+        error: msg,
+        status: createPrettyStatus(status)
+    };
     res.writeHead(status, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
 };
 
 function success(res, result) {
-};
+    const content = {
+        success: true,
+        result,
+        error: '',
+        status: createPrettyStatus(200)
+    };
+    res.writeHead(200, 'Content-Type', 'application/json').end(JSON.stringify(content, null, 4));
+}
+
+function createPrettyStatus(statusCode) {
+    switch (statusCode) {
+        case 200:
+            return 'HTTP 200 (OK)';
+        case 400:
+            return 'HTTP 400 (Bad Request)';
+        case 500:
+            return 'HTTP 500 (Internal Server Error)';
+        default:
+            return `HTTP ${statusCode}`;
+    }
+}
