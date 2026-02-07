@@ -1,4 +1,4 @@
-import { ServerResponse, IncomingMessage } from 'node:http';
+import { ServerResponse, IncomingMessage, STATUS_CODES } from 'node:http';
 import { scrapeAddonSite } from '../curse/scrape.js';
 import { extractDownloadUrl } from '../curse/eval.js';
 import { getFinalDownloadUrl } from '../curse/redirects.js';
@@ -39,10 +39,23 @@ export async function handleScrapeEndpoint(url, res) {
 }
 
 const error = (res, status, errorMessage) =>
-    sendJsonResponse(res, status, { errorMessage });
+    sendJsonResponse(res, status, {
+        statusInfo: createPrettyStatus(status),
+        errorMessage
+    });
 
 const success = (res, addonSlug, downloadUrl) =>
-    sendJsonResponse(res, 200, { addonSlug, downloadUrl });
+    sendJsonResponse(res, 200, {
+        statusInfo: createPrettyStatus(200),
+        addonSlug,
+        downloadUrl
+    });
 
 const sendJsonResponse = (res, status, content) =>
-    res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify(content, null, 4));
+    res.writeHead(status, {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store'
+    }).end(JSON.stringify(content, null, 4));
+
+const createPrettyStatus = (status) =>
+    `HTTP ${status} (${STATUS_CODES[status] ?? 'Unknown'})`;
