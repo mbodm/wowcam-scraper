@@ -1,6 +1,9 @@
 // src/api/server.js
 import { Server, createServer } from "node:http";
 
+// src/api/routes.js
+import { ServerResponse, IncomingMessage, STATUS_CODES } from "node:http";
+
 // src/curse/scrape.js
 async function scrapeAddonSite(addonSlug) {
   const flareSolverrUrl = "http://flaresolverr:8191/v1";
@@ -136,9 +139,20 @@ async function handleScrapeEndpoint(url, res) {
     error(res, 500, msg);
   }
 }
-var error = (res, status, errorMessage) => sendJsonResponse(res, status, { errorMessage });
-var success = (res, addonSlug, downloadUrl) => sendJsonResponse(res, 200, { addonSlug, downloadUrl });
-var sendJsonResponse = (res, status, content) => res.writeHead(status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }).end(JSON.stringify(content, null, 4));
+var error = (res, status, errorMessage) => sendJsonResponse(res, status, {
+  statusInfo: createPrettyStatus(status),
+  errorMessage
+});
+var success = (res, addonSlug, downloadUrl) => sendJsonResponse(res, 200, {
+  statusInfo: createPrettyStatus(200),
+  addonSlug,
+  downloadUrl
+});
+var sendJsonResponse = (res, status, content) => res.writeHead(status, {
+  "content-type": "application/json; charset=utf-8",
+  "cache-control": "no-store"
+}).end(JSON.stringify(content, null, 4));
+var createPrettyStatus = (status) => `HTTP ${status} (${STATUS_CODES[status] ?? "Unknown"})`;
 
 // src/api/server.js
 function startServer(port) {
