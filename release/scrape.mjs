@@ -140,13 +140,13 @@ async function handleScrapeEndpoint(url, res) {
   }
 }
 var error = (res, status, errorMessage) => sendJsonResponse(res, status, {
-  statusInfo: createPrettyStatus(status),
-  errorMessage
+  errorMessage,
+  statusInfo: createPrettyStatus(status)
 });
 var success = (res, addonSlug, downloadUrl) => sendJsonResponse(res, 200, {
-  statusInfo: createPrettyStatus(200),
   addonSlug,
-  downloadUrl
+  downloadUrl,
+  statusInfo: createPrettyStatus(200)
 });
 var sendJsonResponse = (res, status, content) => res.writeHead(status, {
   "content-type": "application/json; charset=utf-8",

@@ -40,15 +40,15 @@ export async function handleScrapeEndpoint(url, res) {
 
 const error = (res, status, errorMessage) =>
     sendJsonResponse(res, status, {
-        statusInfo: createPrettyStatus(status),
-        errorMessage
+        errorMessage,
+        statusInfo: createPrettyStatus(status)
     });
 
 const success = (res, addonSlug, downloadUrl) =>
     sendJsonResponse(res, 200, {
-        statusInfo: createPrettyStatus(200),
         addonSlug,
-        downloadUrl
+        downloadUrl,
+        statusInfo: createPrettyStatus(200)
     });
 
 const sendJsonResponse = (res, status, content) =>
