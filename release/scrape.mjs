@@ -15,7 +15,8 @@ async function scrapeAddonSite(addonSlug) {
       cmd: "request.get",
       url: addonSiteUrl,
       maxTimeout: 3e4
-    })
+    }),
+    signal: AbortSignal.timeout(45e3)
   });
   if (!response.ok) {
     throw new Error(`Scrape: Received error response from internal FlareSolverr API (HTTP ${response.status}).`);
@@ -108,7 +109,12 @@ async function getFinalDownloadUrl(scrapedDownloadUrl, scrapedSiteHeaders) {
     "Accept-Encoding": "gzip, deflate, br",
     "Connection": "keep-alive"
   };
-  const response = await fetch(scrapedDownloadUrl, { method: "GET", headers, redirect: "follow" });
+  const response = await fetch(scrapedDownloadUrl, {
+    method: "GET",
+    headers,
+    redirect: "follow",
+    signal: AbortSignal.timeout(15e3)
+  });
   if (!response.ok) {
     throw new Error(`Redirects: Received error response while following Curse redirects (HTTP ${response.status}).`);
   }
