@@ -46,10 +46,10 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 
 ### Vibe coding?
 
-- I initially built this project manually as a senior software developer with 25+ years of experience.
-- Today, the project is developed and maintained with AI assistance (primarily Codex and Claude).
-- AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance.
-- No change is released before I personally review it in detail.
+- I initially built this project manually as a senior software developer with 25+ years of experience
+- Today the project is developed and maintained with AI assistance (primarily Codex and Claude)
+- AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance
+- No change is released before I personally review it in detail
 
 ### Production caveats?
 
@@ -57,7 +57,7 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 - Any upstream changes will require corresponding adjustments in this service (by design)
 - Scraper extraction is intentionally lightweight and may require quick adjustments when the target site's markup changes
 - Error responses may include concise internal diagnostic messages for developer users (but never secrets/tokens or stack traces)
-- Service availability depends on all three containers (`node`, `flaresolverr`, `caddy`) being healthy
+- Service availability depends on all three containers (`node` / `flaresolverr` / `caddy`) being healthy
 - But all of these trade-offs are intentional :-)
 
 #### Have fun.
