@@ -58,6 +58,6 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 - The scraper is intentionally lightweight and may need quick updates when target markup changes
 - Error responses may include brief internal diagnostics for devs (but never tokens or stack traces)
 - Service availability depends on all three containers (`node` / `flaresolverr` / `caddy`) being healthy
-- But all of this is "by design" and intentional :-)
+- But all of this is "by design" and intentional
 
 #### Have fun.
