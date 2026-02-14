@@ -8,6 +8,11 @@ import { handleRootEndpoint, handleScrapeEndpoint } from './routes.js';
  */
 export function startServer(port) {
     const server = createServer(async (req, res) => {
+        // A malformed request (proxy, etc.) could end up in empty URL
+        if (typeof req.url !== 'string' || req.url.length === 0) {
+            res.writeHead(500).end('Error: Node.js server request not provided request URL.');
+            return;
+        }
         // Cap URL length to prevent buffer overflow attacks in general (regardless of what we do later with URL content)
         if (req.url.length > 255) {
             res.writeHead(400).end('Error: URL is not allowed to exceed a limit of 255 characters.');
