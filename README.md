@@ -20,14 +20,15 @@ WOWCAM backend service to scrape addon data from the web
     - to start the official Caddy Docker image (to provide HTTPS support)
     - to shut down all the containers
     - to view the logs of the containers
-    - to rebuild and restart all at once
+    - to restart all at once
     - no bind mount or host pollution (caching `node_modules` etc.) is used
     - see `docker/docker-compose.yml` for details
   - Caddy
     - used as reverse proxy
     - used for HTTPS handling
     - see `docker/Caddyfile` for details
-- All build/deployment is controlled by `npm run` scripts (see `package.json`)
+- All build and deployment is controlled by `npm run` scripts (see `package.json`)
+- A complete rebuild & restart is triggered by running the `npm run release` script
 
 ### Why?
 
