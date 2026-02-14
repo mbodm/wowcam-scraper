@@ -13,7 +13,12 @@ export async function getFinalDownloadUrl(scrapedDownloadUrl, scrapedSiteHeaders
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive'
     };
-    const response = await fetch(scrapedDownloadUrl, { method: 'GET', headers, redirect: 'follow' });
+    const response = await fetch(scrapedDownloadUrl, {
+        method: 'GET',
+        headers,
+        redirect: 'follow',
+        signal: AbortSignal.timeout(15000)
+    });
     if (!response.ok) {
         throw new Error(`Redirects: Received error response while following Curse redirects (HTTP ${response.status}).`);
     }

@@ -14,6 +14,7 @@ export async function scrapeAddonSite(addonSlug) {
             url: addonSiteUrl,
             maxTimeout: 30000
         }),
+        signal: AbortSignal.timeout(45000)
     });
     if (!response.ok) {
         throw new Error(`Scrape: Received error response from internal FlareSolverr API (HTTP ${response.status}).`);
