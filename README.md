@@ -55,8 +55,8 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 
 - This service depends on FlareSolverr and the target site's page behavior
 - Any upstream changes will require corresponding adjustments in this service (by design)
-- Scraper extraction is intentionally lightweight and may require quick adjustments when the target site's markup changes
-- Error responses may include concise internal diagnostic messages for developer users (but never secrets/tokens or stack traces)
+- The scraper is intentionally lightweight and may need quick updates when target markup changes
+- Error responses may include brief internal diagnostics for devs (but never tokens or stack traces)
 - Service availability depends on all three containers (`node` / `flaresolverr` / `caddy`) being healthy
 - But all of these trade-offs are intentional :-)
 
