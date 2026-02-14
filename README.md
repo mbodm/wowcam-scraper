@@ -49,7 +49,7 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 - I initially built this project manually as a senior software developer with 25+ years of experience
 - Today the project is developed and maintained with AI assistance (primarily Codex and Claude)
 - AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance
-- No change is released before I personally review it in detail
+- No changes are released before I personally review them in detail
 
 ### Production caveats?
 
