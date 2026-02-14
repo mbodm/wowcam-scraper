@@ -43,4 +43,11 @@ which are used by my WOWCAM application (acting as a simple "Windows client").
 - By using Caddy for the HTTPS support (see above)
 - By deploying everything stable and secure in Docker containers (see above)
 
+### Vibe coding?
+
+- I initially built this project manually as a senior software developer with 25+ years of experience.
+- Today, the project is developed and maintained with AI assistance (primarily Codex and Claude).
+- AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance.
+- No change is released before I personally review it in detail.
+
 #### Have fun.
