@@ -7,9 +7,9 @@ WOWCAM backend service to scrape addon data from the web
 - It's a very simple web scraper REST API service (written in pure JS)
 - It's a small Node.js project
   - offering only a single HTTP GET endpoint
-  - using ES-Modules `import` statements (not CommonJS `require` statements)
+  - using ES-Modules `import` statements only (no CommonJS `require` statements)
   - using promises (via `async/await` statements)
-  - using `esbuild` to create a single release-file (`scrape.mjs`)
+  - using `esbuild` to create a single release-file (`release/scrape.mjs`)
   - no external packages/dependencies (besides the `esbuild` dev dependency)
   - see the `src` folder and the `package.json` for details
 - Docker and Caddy are used for deployment
@@ -31,12 +31,12 @@ WOWCAM backend service to scrape addon data from the web
 
 ### Why?
 
-To have a backend REST API service, which scrapes & serves addon download URLs,
-which are used by my WOWCAM application (acting as a simple "Windows client").
+To have some backend REST API service, which scrapes & serves addon download URLs,
+which are used by my WOWCAM application (acting as a simple Windows or macOS "client").
 
 ### How?
 
-- By using on-premise hosting on my server
+- By using on-premise hosting on my [netcup](https://www.netcup.com) server
 - By developing everything directly on that machine (remote)
 - By using _VS Code_ with active _Remote SSH_ extension
 - By using an A-RECORD entry for the sub domain
