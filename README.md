@@ -18,15 +18,15 @@ WOWCAM backend service to scrape addon data from the web
     - to start the official Node.js LTS Docker image (to run the release-file)
     - to start the official FlareSolverr Docker image (to scrape the sites)
     - to start the official Caddy Docker image (to provide HTTPS support)
-    - to shutdown all the containers
+    - to shut down all the containers
     - to view the logs of the containers
     - to rebuild and restart all at once
-    - no bind mount or host polution (caching `node_modules` etc.) is used
-    - see `docker-compose.yml` file for details
+    - no bind mount or host pollution (caching `node_modules` etc.) is used
+    - see `docker/docker-compose.yml` for details
   - Caddy
-    - used as revery proxy
+    - used as reverse proxy
     - used for HTTPS handling
-    - see the `Caddyfile` for details
+    - see `docker/Caddyfile` for details
 - All build/deployment is controlled by `npm run` scripts (see `package.json`)
 
 ### Why?
@@ -39,9 +39,9 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 - By using on-premise hosting on my [netcup](https://www.netcup.com) server
 - By developing everything directly on that machine (remote)
 - By using _VS Code_ with active _Remote SSH_ extension
-- By using an A-RECORD entry for the sub domain
+- By using a DNS A-Record for the subdomain
 - By using Caddy for the HTTPS support (see above)
-- By deploying everything stable and secure in Docker containers (see above)
+- By deploying everything in Docker containers (see above) for better stability and security
 
 ### Vibe coding?
 
@@ -49,5 +49,14 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 - Today, the project is developed and maintained with AI assistance (primarily Codex and Claude).
 - AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance.
 - No change is released before I personally review it in detail.
+
+### Production caveats?
+
+- This service depends on FlareSolverr and the target site's page behavior
+- Any upstream changes will require corresponding adjustments in this service (by design)
+- Scraper extraction is intentionally lightweight and may require quick adjustments when the target site's markup changes
+- Error responses may include concise internal diagnostic messages for developer users (but never secrets/tokens or stack traces)
+- Service availability depends on all three containers (`node`, `flaresolverr`, `caddy`) being healthy
+- But all of these trade-offs are intentional :-)
 
 #### Have fun.
