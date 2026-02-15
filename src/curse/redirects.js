@@ -1,7 +1,7 @@
 import { UpstreamError } from './error.js';
 
 /**
- * This function follows all redirects of the scraped Curse addon download URL and returns the final "real" zip file download URL
+ * This function follows all redirects of the scraped Curse addon download URL and returns the final "real" ZIP file download URL
  * @param {string} scrapedDownloadUrl
  * @param {object} scrapedSiteHeaders
  * @returns {Promise<string>}
@@ -24,5 +24,11 @@ export async function getFinalDownloadUrl(scrapedDownloadUrl, scrapedSiteHeaders
     if (!response.ok) {
         throw new UpstreamError(`Redirects: Received error response while following Curse redirects (HTTP ${response.status}).`);
     }
-    return response.url;
+    const finalDownloadUrl = response.url.trim();
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!finalDownloadUrl.toLowerCase().endsWith('.zip') &&
+        !contentType.toLowerCase().includes('zip')) {
+        throw new UpstreamError('Redirects: It seems the final download URL is not a ZIP file.');
+    }
+    return finalDownloadUrl;
 }

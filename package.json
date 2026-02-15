@@ -1,6 +1,6 @@
 {
   "name": "wowcam-scraper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "src/app.js",
   "scripts": {
     "dev": "node --watch src/app.js",

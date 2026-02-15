@@ -13,7 +13,7 @@ WOWCAM backend service to scrape addon data from the web
   - no external packages/dependencies (besides the `esbuild` dev dependency)
   - see `src` folder and `package.json` for details
 - Docker and Caddy are used for deployment
-  - Docker-Compose
+  - Docker Compose
     - to define the network
     - to start the official Node.js LTS Docker image (to run the release-file)
     - to start the official FlareSolverr Docker image (to scrape the sites)

@@ -13,11 +13,11 @@ function parse(html, search) {
     const regex = new RegExp(`\\\\"${search}\\\\"\\s*:\\s*{[\\s\\S]*?\\\\"id\\\\"\\s*:\\s*(\\d+)`);
     const match = html.match(regex);
     if (!match) {
-        throw new Error(`Eval: Could not determine the "${search} id" in scraped site content (necessary for download URL).`);
+        throw new Error(`Eval: Could not determine the "${search}.id" in scraped site content (necessary for download URL).`);
     }
     const id = Number(match[1]);
     if (!Number.isInteger(id) || id < 1) {
-        throw new Error(`Eval: The determined "${search} id", in scraped site content, is not a positive integer number.`);
+        throw new Error(`Eval: The determined "${search}.id", in scraped site content, is not a positive integer number.`);
     }
     return id;
 }
