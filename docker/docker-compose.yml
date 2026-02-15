@@ -11,6 +11,8 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    environment:
+      - BASE_URL=https://wowcam.mbodm.com
     volumes:
       - ../release:/app:ro
     working_dir: /app

@@ -3,29 +3,15 @@ import { handleRootEndpoint, handleScrapeEndpoint } from './routes.js';
 
 /**
  * This function starts a Node.js HTTP server which exposes some API endpoints
- * @param {number} port
- * @returns {Server<IncomingMessage, ServerResponse>} server
+ * @param {number} port The port the server is listening on
+ * @returns {Server<IncomingMessage, ServerResponse>} The server instance
  */
 export function startServer(port) {
     const server = createServer(async (req, res) => {
-        // A malformed request (proxy, etc.) could end up in empty URL
-        if (typeof req.url !== 'string' || req.url.length === 0) {
-            res.writeHead(500).end('Error: Node.js server request not provided request URL.');
-            return;
-        }
-        // Cap URL length to prevent buffer overflow attacks in general (regardless of what we do later with URL content)
-        if (req.url.length > 255) {
-            res.writeHead(400).end('Error: URL is not allowed to exceed a limit of 255 characters.');
-            return;
-        }
-        // Get URL class instance (for path-name and query-params)
-        let url;
-        try {
-            const proto = req.headers['x-forwarded-proto'] ?? 'http';
-            url = new URL(req.url, `${proto}://${req.headers.host}`); // URL class can throw
-            if (!url) throw new Error(); // URL class can return falsy value
-        } catch {
-            res.writeHead(400).end('Error: URL is not valid.');
+        // URL (for pathname and query params)
+        const url = createUrlClassInstance(req);
+        if (!url) {
+            res.writeHead(400).end('Error: Invalid request URL (check logs for details).');
             return;
         }
         // Methods (only allow GET requests)
@@ -42,11 +28,36 @@ export function startServer(port) {
                 await handleScrapeEndpoint(url, res);
                 break;
             default:
-                res.writeHead(404).end(); // Matches '/favicon.ico' route too
+                // Matches '/favicon.ico' route too
+                res.writeHead(404).end();
                 break;
         }
     });
     server.listen(port, '0.0.0.0');
-    console.log(`Server started (http://localhost:${port})`);
+    console.log(`Server started (reachable at http://localhost:${port})`);
     return server;
+}
+
+function createUrlClassInstance(req) {
+    try {
+        // A malformed request (proxy, gateway, etc.) could result in an empty .url property
+        if (typeof req.url !== 'string' || req.url.length === 0) {
+            throw new Error('The request URL was not provided.');
+        }
+        // Cap URL length to prevent buffer overflow attacks in general (regardless of what we do later with URL content)
+        if (req.url.length > 255) {
+            throw new Error('The provided request URL must not exceed a limit of 255 characters.');
+        }
+        // Use fixed/defined base URL (using `${proto}://${req.headers.host}` is dangerous because of host-header-injection attacks)
+        const baseUrl = process.env.BASE_URL;
+        if (!baseUrl) {
+            throw new Error('Missing "BASE_URL" environment variable.');
+        }
+        // Create URL class instance (for easy access to pathname and query params)
+        return new URL(req.url, baseUrl);
+    }
+    catch (err) {
+        console.error(err);
+        return null;
+    }
 }

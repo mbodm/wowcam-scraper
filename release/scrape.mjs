@@ -141,8 +141,14 @@ async function handleScrapeEndpoint(url, res) {
     const downloadUrlFinal = await getFinalDownloadUrl(downloadUrl, scrapeResult.siteHeaders);
     success(res, addonSlug, downloadUrlFinal);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Unknown error occurred.";
-    error(res, 500, msg);
+    if (err instanceof Error) {
+      console.error("Error occurred in /scrape route handler.", err);
+      error(res, 500, err.message);
+    } else {
+      const msg = "Unknown error occurred in /scrape route handler.";
+      console.error(msg);
+      error(res, 500, msg);
+    }
   }
 }
 var error = (res, status, errorMessage) => sendJsonResponse(res, status, {
@@ -163,17 +169,9 @@ var createPrettyStatus = (status) => `HTTP ${status} (${STATUS_CODES[status] ?? 
 // src/api/server.js
 function startServer(port) {
   const server2 = createServer(async (req, res) => {
-    if (req.url.length > 255) {
-      res.writeHead(400).end("Error: URL is not allowed to exceed a limit of 255 characters.");
-      return;
-    }
-    let url;
-    try {
-      const proto = req.headers["x-forwarded-proto"] ?? "http";
-      url = new URL(req.url, `${proto}://${req.headers.host}`);
-      if (!url) throw new Error();
-    } catch {
-      res.writeHead(400).end("Error: URL is not valid.");
+    const url = createUrlClassInstance(req);
+    if (!url) {
+      res.writeHead(400).end("Error: Invalid request URL (check logs for details).");
       return;
     }
     if (req.method !== "GET") {
@@ -193,8 +191,26 @@ function startServer(port) {
     }
   });
   server2.listen(port, "0.0.0.0");
-  console.log(`Server started (http://localhost:${port})`);
+  console.log(`Server started (http://127.0.0.1:${port})`);
   return server2;
+}
+function createUrlClassInstance(req) {
+  try {
+    if (typeof req.url !== "string" || req.url.length === 0) {
+      throw new Error("The request URL was not provided.");
+    }
+    if (req.url.length > 255) {
+      throw new Error("The request URL is not allowed to exceed a limit of 255 characters.");
+    }
+    const baseUrl = process.env.BASE_URL;
+    if (!baseUrl) {
+      throw new Error('Missing "BASE_URL" environment variable.');
+    }
+    return new URL(req.url, baseUrl);
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
 }
 
 // src/app.js
