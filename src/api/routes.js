@@ -2,6 +2,7 @@ import { ServerResponse, IncomingMessage, STATUS_CODES } from 'node:http';
 import { scrapeAddonSite } from '../curse/scrape.js';
 import { extractDownloadUrl } from '../curse/eval.js';
 import { getFinalDownloadUrl } from '../curse/redirects.js';
+import { UpstreamError } from '../curse/error.js';
 
 /**
  * This function handles the "/" endpoint
@@ -34,9 +35,13 @@ export async function handleScrapeEndpoint(url, res) {
     }
     catch (err) {
         console.error('Error occurred in /scrape route handler:', err);
-        err instanceof Error
-            ? error(res, 500, err.message)
-            : error(res, 500, 'Unknown error occurred in /scrape route handler (check logs for details).');
+        if (err instanceof UpstreamError) {
+            error(res, 502, err.message);
+        } else if (err instanceof Error) {
+            error(res, 500, err.message);
+        } else {
+            error(res, 500, 'Unknown error occurred in /scrape route handler (check logs for details).');
+        }
     }
 }
 
