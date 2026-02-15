@@ -47,7 +47,7 @@ which are used by my WOWCAM application (acting as a simple Windows or macOS "cl
 ### Vibe coding?
 
 - I initially built this project manually as a senior software developer with 25+ years of experience
-- Today the project is developed and maintained with AI assistance (primarily Codex and Claude)
+- Today the project is developed and maintained with AI assistance (primarily Anthropic and OpenAI)
 - AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance
 - No changes are released before I personally review them in detail
 

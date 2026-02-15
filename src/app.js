@@ -9,11 +9,11 @@ function exitGracefully(signal) {
     if (!server) {
         return;
     }
-    console.log(`Closing server now, cause received ${signal} signal.`);
+    console.log(`Closing server now, because received ${signal} signal.`);
     // Stop server gracefully
     server.close(err => {
         if (err) {
-            console.error('Forcing exit, cause error occurred while closing server: ', err);
+            console.error('Forcing exit, because an error occurred while closing server: ', err);
             process.exit(1);
         }
         else {
@@ -23,7 +23,7 @@ function exitGracefully(signal) {
     });
     // Force exit if server.close() hangs
     setTimeout(() => {
-        console.error('Forcing exit, cause timeout occurred while closing server.');
+        console.error('Forcing exit, because a timeout occurred while closing server.');
         process.exit(1);
     }, 10 * 1000);
 }

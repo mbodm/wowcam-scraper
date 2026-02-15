@@ -111,7 +111,7 @@ function validateCurseResponseStatus(obj) {
     // FlareSolver obj was already validated above
     const status = Number(obj.solution.status); // Number conversion never throws
     if (Number.isNaN(status) || status < 1 || status > 1024) {
-        throw new Error('Scrape: Could not determine Curse addon site response-status.');
+        throw new Error('Scrape: Could not determine Curse addon site response status.');
     }
     if (status === 404) {
         // Note:
@@ -128,7 +128,7 @@ function getAddonSiteContent(obj) {
     // FlareSolver obj was already validated above
     const siteContent = obj.solution.response;
     if (!siteContent) {
-        throw new Error('Scrape: Could not determine Curse addon site page-content.');
+        throw new Error('Scrape: Could not determine Curse addon site page content.');
     }
     // 404 page detection
     if (siteContent.includes('NEXT_HTTP_ERROR_FALLBACK;404')) {
@@ -142,7 +142,7 @@ function getAddonSiteHeaders(obj) {
     const userAgent = obj.solution.userAgent;
     const cookiesArray = obj.solution.cookies;
     if (!userAgent || !Array.isArray(cookiesArray)) {
-        throw new Error('Scrape: Could not determine Curse addon site header-data (user-agent and cookies).');
+        throw new Error('Scrape: Could not determine Curse addon site header data (user-agent and cookies).');
     }
     const kvpStrings = cookiesArray.map(arrayItem => `${arrayItem.name}=${arrayItem.value}`);
     const cookiesString = kvpStrings.join('; '); // Empty array -> Empty string ("")

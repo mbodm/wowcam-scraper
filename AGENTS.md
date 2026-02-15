@@ -41,7 +41,6 @@ This file defines how coding agents should work in this repository.
 
 - Treat all request headers and query parameters as untrusted input.
 - Do not publish internal service ports unless required.
-- Prefer pinned Docker image tags over `latest`.
 - Add/keep container hardening where practical:
   - non-root user
   - read-only FS where possible
