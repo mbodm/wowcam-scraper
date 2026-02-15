@@ -98,8 +98,8 @@ function validateFlareSolverrResponseObject(obj) {
         throw new Error('Scrape: The received "message", from internal FlareSolverr API, was undefined.');
     }
     if (obj.status.toLowerCase() !== 'ok') {
-        console.log(`FlareSolverr "status" was "${obj.status}"`);
-        console.log(`FlareSolverr "message" was "${obj.message}"`); // If message is null then it shows "null"
+        console.log(`FlareSolverr "status" was: "${obj.status}"`);
+        console.log(`FlareSolverr "message" was: "${obj.message}"`); // If message is null then it shows "null"
         throw new Error('Scrape: The received response object, from internal FlareSolverr API, indicates that scraping was not successful.');
     }
     if (!obj.solution) {

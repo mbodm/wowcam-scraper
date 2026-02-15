@@ -11,7 +11,7 @@ export function startServer(port) {
         // URL (for pathname and query params)
         const url = createUrlClassInstance(req);
         if (!url) {
-            res.writeHead(400).end('Error: Invalid request URL (check logs for details).');
+            res.writeHead(400).end('Error: Invalid request URL.');
             return;
         }
         // Methods (only allow GET requests)
@@ -36,7 +36,7 @@ export function startServer(port) {
     server.on('error', (err) =>
         console.error('Server error occurred:', err));
     server.listen(port, '0.0.0.0', () =>
-        console.log(`Server started (reachable at http://localhost:${port})`));
+        console.log(`Server started: http://localhost:${port}`));
     return server;
 }
 
@@ -59,7 +59,7 @@ function createUrlClassInstance(req) {
         return new URL(req.url, baseUrl);
     }
     catch (err) {
-        console.error(err);
+        console.error('Error occurred while creating URL class instance:', err);
         return null;
     }
 }

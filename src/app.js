@@ -9,7 +9,7 @@ function exitGracefully(signal) {
     if (!server) {
         return;
     }
-    console.log(`Closing server now, cause received ${signal}.`);
+    console.log(`Closing server now, cause received ${signal} signal.`);
     // Stop server gracefully
     server.close(err => {
         if (err) {

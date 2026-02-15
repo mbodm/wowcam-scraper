@@ -33,15 +33,10 @@ export async function handleScrapeEndpoint(url, res) {
         success(res, addonSlug, downloadUrlFinal);
     }
     catch (err) {
-        if (err instanceof Error) {
-            console.error('Error occurred in /scrape route handler.', err);
-            error(res, 500, err.message);
-        }
-        else {
-            const msg = 'Unknown error occurred in /scrape route handler.';
-            console.error(msg);
-            error(res, 500, msg);
-        }
+        console.error('Error occurred in /scrape route handler:', err);
+        err instanceof Error
+            ? error(res, 500, err.message)
+            : error(res, 500, 'Unknown error occurred in /scrape route handler (check logs for details).');
     }
 }
 
