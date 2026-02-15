@@ -190,8 +190,8 @@ function startServer(port) {
         break;
     }
   });
-  server2.listen(port, "0.0.0.0");
-  console.log(`Server started (http://127.0.0.1:${port})`);
+  server2.on("error", (err) => console.error("Server error occurred:", err));
+  server2.listen(port, "0.0.0.0", () => console.log(`Server started (reachable at http://localhost:${port})`));
   return server2;
 }
 function createUrlClassInstance(req) {
@@ -200,7 +200,7 @@ function createUrlClassInstance(req) {
       throw new Error("The request URL was not provided.");
     }
     if (req.url.length > 255) {
-      throw new Error("The request URL is not allowed to exceed a limit of 255 characters.");
+      throw new Error("The request URL exceeds maximum length of 255 characters.");
     }
     const baseUrl = process.env.BASE_URL;
     if (!baseUrl) {
