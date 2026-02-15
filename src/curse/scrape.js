@@ -117,7 +117,7 @@ function validateCurseResponseStatus(obj) {
         // Note:
         // This check is not reliable. We do a second check below, inspecting the site content.
         // Because FlareSolverr may show HTTP 200 OK, but receives a Curse 404 page as content.
-        throw new Error('Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API showed HTTP 404).');
+        throw new Error('Scrape: Curse addon site does not exist for given addon name (internal FlareSolverr API showed HTTP 404).');
     }
     if (status !== 200) {
         throw new Error(`Scrape: Curse addon site response status was not OK (internal FlareSolverr API showed HTTP ${status}).`);
@@ -132,7 +132,7 @@ function getAddonSiteContent(obj) {
     }
     // 404 page detection
     if (siteContent.includes('NEXT_HTTP_ERROR_FALLBACK;404')) {
-        throw new Error('Scrape: Curse addon site not exists for given addon name (internal FlareSolverr API received Curse 404 page).');
+        throw new Error('Scrape: Curse addon site does not exist for given addon name (internal FlareSolverr API received Curse 404 page).');
     }
     return siteContent;
 }
@@ -145,6 +145,6 @@ function getAddonSiteHeaders(obj) {
         throw new Error('Scrape: Could not determine Curse addon site header data (user-agent and cookies).');
     }
     const kvpStrings = cookiesArray.map(arrayItem => `${arrayItem.name}=${arrayItem.value}`);
-    const cookiesString = kvpStrings.join('; '); // Empty array -> Empty string ("")
+    const cookiesString = kvpStrings.join('; '); // Empty array results in empty string ("")
     return { userAgent, cookiesString };
 }

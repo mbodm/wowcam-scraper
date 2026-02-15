@@ -13,7 +13,7 @@ function exitGracefully(signal) {
     // Stop server gracefully
     server.close(err => {
         if (err) {
-            console.error('Forcing exit, because an error occurred while closing server: ', err);
+            console.error('Forcing exit, because an error occurred while closing server:', err);
             process.exit(1);
         }
         else {
