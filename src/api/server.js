@@ -33,8 +33,10 @@ export function startServer(port) {
                 break;
         }
     });
-    server.listen(port, '0.0.0.0');
-    console.log(`Server started (reachable at http://localhost:${port})`);
+    server.on('error', (err) =>
+        console.error('Server error occurred:', err));
+    server.listen(port, '0.0.0.0', () =>
+        console.log(`Server started (reachable at http://localhost:${port})`));
     return server;
 }
 
@@ -46,7 +48,7 @@ function createUrlClassInstance(req) {
         }
         // Cap URL length to prevent buffer overflow attacks in general (regardless of what we do later with URL content)
         if (req.url.length > 255) {
-            throw new Error('The provided request URL must not exceed a limit of 255 characters.');
+            throw new Error('The request URL exceeds maximum length of 255 characters.');
         }
         // Use fixed/defined base URL (using `${proto}://${req.headers.host}` is dangerous because of host-header-injection attacks)
         const baseUrl = process.env.BASE_URL;
