@@ -5,19 +5,20 @@
   "scripts": {
     "dev": "node --watch src/app.js",
     "build": "esbuild src/app.js --format=esm --bundle --platform=node --outfile=release/scrape.mjs",
+    "lint": "eslint src/**/*.js",
     "dcup": "sudo docker compose -f docker/docker-compose.yml up -d --build",
     "dcdown": "sudo docker compose -f docker/docker-compose.yml down",
     "dclogsnode": "sudo docker compose -f docker/docker-compose.yml logs node --follow",
     "dclogsfs": "sudo docker compose -f docker/docker-compose.yml logs flaresolverr --follow",
     "dclogscaddy": "sudo docker compose -f docker/docker-compose.yml logs caddy --follow",
-    "release": "npm run build && sleep 1 && npm run dcdown && sleep 1 && npm run dcup"
+    "release": "npm run lint && npm run build && sleep 1 && npm run dcdown && sleep 1 && npm run dcup"
   },
   "author": "MBODM (mbodm.com)",
   "license": "MIT",
   "description": "WOWCAM backend service to scrape addon data from the web",
   "type": "module",
-  "dependencies": {},
   "devDependencies": {
-    "esbuild": "0.25.2"
+    "esbuild": "^0.27.0",
+    "eslint": "^10.0.0"
   }
 }
