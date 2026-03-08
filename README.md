@@ -46,8 +46,8 @@ which are used by my WOWCAM application (now only acting as simple desktop clien
 
 ### Vibe coding?
 
-- I initially built this project manually as a senior software developer with 25+ years of experience
-- Today the project is developed and maintained with AI assistance (primarily Anthropic and OpenAI)
+- Initially i built this project manually as a 25+ years experienced senior software developer
+- Today it's developed and maintained with AI assistance (primarily Claude)
 - AI agents can use the [AGENTS.md](AGENTS.md) file for repository-specific guidance
 - No changes are released before I personally review them in detail
 
