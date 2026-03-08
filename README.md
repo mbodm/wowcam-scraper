@@ -33,7 +33,7 @@ WOWCAM backend service to scrape addon data from the web
 ### Why?
 
 To have some backend REST API service, which scrapes & serves addon download URLs,
-which are used by my WOWCAM application (acting as a simple Windows or macOS "client").
+which are used by my WOWCAM application (now only acting as a simple desktop client app).
 
 ### How?
 
