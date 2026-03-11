@@ -54,10 +54,10 @@ which are used by my WOWCAM application (now only acting as simple desktop clien
 ### Production caveats?
 
 - This service depends on FlareSolverr and the target site's page behavior
-- Any upstream changes will require corresponding adjustments in this service (by design)
-- The scraper is intentionally lightweight and may need quick updates when target markup changes
-- Error responses may include brief internal diagnostics for devs (but never tokens or stack traces)
-- Service availability depends on all three containers (`node` / `flaresolverr` / `caddy`) being healthy
+- Any upstream changes will require corresponding adjustments here (by design)
+- Service is intentionally lightweight and may need updates when target markup changes
+- Responses may include brief diagnostics for devs (but never tokens or stack traces)
+- Service availability depends on all three containers Docker containers being healthy
 - But all of this is "by design" and intentional
 
 #### Have fun.
