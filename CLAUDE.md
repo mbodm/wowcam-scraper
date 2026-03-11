@@ -1,4 +1,4 @@
-# AGENTS.md
+# CLAUDE.md
 
 This file defines how coding agents should work in this repository.
 
