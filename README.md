@@ -53,9 +53,9 @@ which are used by my WOWCAM application (now only acting as simple desktop clien
 
 ### Production caveats?
 
-- This service depends on FlareSolverr and the target site's page behavior
+- This service depends on FlareSolverr and the target site's behavior
 - Any upstream changes will require corresponding adjustments here (by design)
-- Service is intentionally lightweight and may need updates when target markup changes
+- This service is intentionally lightweight and may need updates when target markup changes
 - Responses may include brief diagnostics for devs (but never tokens or stack traces)
 - Service availability depends on all three containers Docker containers being healthy
 - But all of this is "by design" and intentional
