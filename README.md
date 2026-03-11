@@ -57,7 +57,7 @@ which are used by my WOWCAM application (now only acting as simple desktop clien
 - Any upstream changes will require corresponding adjustments here (by design)
 - Service is intentionally lightweight and may need updates when target markup changes
 - Responses may include brief diagnostics for devs (but never tokens or stack traces)
-- Service availability depends on all three containers Docker containers being healthy
+- Service availability depends on all three Docker containers being healthy
 - But all of this is "by design" and intentional
 
 #### Have fun.
