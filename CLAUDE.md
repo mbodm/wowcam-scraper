@@ -1,12 +1,10 @@
-# CLAUDE.md
-
 This file defines how coding agents should work in this repository.
 
 ## Project Context
 
 - Stack: Node.js (ESM, no framework), Docker Compose, Caddy, FlareSolverr
 - Source code: `/src`
-- Bundled runtime artifact: `/release/scrape.mjs`
+- Bundled runtime artifact: `/release/scrape.mjs` (deployed artifact, not the source directly)
 - Runtime topology:
   - `node` container runs `release/scrape.mjs`
   - `flaresolverr` container provides anti-bot scraping API
@@ -20,12 +18,12 @@ This file defines how coding agents should work in this repository.
 
 ## Coding Rules
 
-- Use modern ESM JavaScript only.
+- Use modern ESM JavaScript only. Use `import.meta.url` and `path.dirname()` instead of `__dirname`; always include `.js` extensions in local imports.
 - Prefer small, pure functions with explicit input validation.
 - Never silently swallow errors (the API is designed to offer internal details, on purpose).
 - Avoid adding dependencies unless there is a clear operational benefit.
 - Keep responses human-friendly JSON (the API is designed for inspecting responses directly in the browser).
-- Keep log messages short and structured enough for container logs.
+- Use `console.log()` for logging; keep messages short and single-line.
 
 ## API and Error Handling
 
@@ -51,16 +49,12 @@ This file defines how coding agents should work in this repository.
 
 ## Performance and Stability
 
-- Keep scraper logic resilient to minor HTML/layout changes.
-- Avoid unbounded waits and unbounded memory growth.
+- Set explicit timeouts on all FlareSolverr and outbound HTTP calls; never wait indefinitely.
+- Avoid unbounded memory growth (e.g. do not accumulate response data in memory across requests).
 - Keep request handling non-blocking and idempotent.
 
 ## Working Agreement for Agents
 
-- Before changing behavior, inspect:
-  - `src/app.js`
-  - `src/api/*.js`
-  - `src/curse/*.js`
 - Never change operational config without explicitly asking user for it. This includes:
   - `docker/Caddyfile`
   - `docker/docker-compose.yml`
