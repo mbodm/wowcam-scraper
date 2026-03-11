@@ -18,7 +18,7 @@ This file defines how coding agents should work in this repository.
 
 ## Coding Rules
 
-- Use modern ESM JavaScript only. Use `import.meta.url` and `path.dirname()` instead of `__dirname`; always include `.js` extensions in local imports.
+- Use modern ESM JavaScript only; always include `.js` extensions in local imports.
 - Prefer small, pure functions with explicit input validation.
 - Never silently swallow errors (the API is designed to offer internal details, on purpose).
 - Avoid adding dependencies unless there is a clear operational benefit.
