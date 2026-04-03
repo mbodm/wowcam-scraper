@@ -23,7 +23,7 @@ This file defines how Claude should work in this repository.
 - Prefer small, pure functions with explicit input validation.
 - Never silently swallow errors (the API is designed to offer internal details, on purpose).
 - Avoid adding dependencies unless there is a clear operational benefit.
-- Keep responses human-friendly JSON (the API is designed for inspecting responses directly in the browser).
+- Keep responses human-friendly JSON (API is designed for inspecting directly in browser).
 - Use `console.log()` for logging; keep messages short and single-line.
 
 ## API and Error Handling
