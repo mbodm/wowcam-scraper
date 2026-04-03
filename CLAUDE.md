@@ -4,7 +4,7 @@ This file defines how Claude should work in this repository.
 
 - Stack: Node.js (ESM, no framework), FlareSolverr, Traefik, Docker Compose.
 - Source code: `/src`
-- Bundled runtime artifact: `/release/scrape.mjs` (deployed artifact, not the source directly)
+- Bundled runtime artifact: `/release/scrape.mjs` (deployed artifact, not source directly)
 - Runtime topology:
   - `node` container runs `release/scrape.mjs`
   - `flaresolverr` container provides anti-bot scraping API
