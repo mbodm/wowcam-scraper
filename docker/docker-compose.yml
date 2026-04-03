@@ -18,7 +18,17 @@ services:
     working_dir: /app
     command: [ "node", "scrape.mjs" ]
     networks:
-      - caddy_net
+      - my-proxy-net
+      - my-backend-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wowcam.rule=Host(`wowcam.mbodm.com`)"
+      - "traefik.http.routers.wowcam.entrypoints=websecure"
+      - "traefik.http.routers.wowcam.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wowcam.middlewares=wowcam-hsts"
+      - "traefik.http.services.wowcam.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.wowcam-hsts.headers.stsSeconds=31536000"
+      - "traefik.docker.network=traefik-proxy"
   flaresolverr:
     image: flaresolverr/flaresolverr:latest
     container_name: flaresolverr
@@ -28,32 +38,11 @@ services:
     environment:
       - LOG_LEVEL=info
     networks:
-      - caddy_net
-  caddy:
-    image: caddy:latest
-    container_name: caddy
-    restart: unless-stopped
-    read_only: true
-    tmpfs:
-      - /tmp
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - caddy_net
+      - my-backend-net
 networks:
-  caddy_net:
+  my-proxy-net:
+    name: traefik-proxy
+    external: true
+  my-backend-net:
     driver: bridge
-volumes:
-  caddy_data:
-  caddy_config:
+    internal: true

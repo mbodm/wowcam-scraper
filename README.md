@@ -12,21 +12,22 @@ WOWCAM backend service to scrape addon data
   - using `esbuild` to create a single release-file (`release/scrape.mjs`)
   - no external packages/dependencies (besides the `esbuild` dev dependency)
   - see `src` folder and `package.json` for details
-- Docker and Caddy are used for deployment
+- Docker and Traefik are used for deployment
   - Docker Compose
-    - to define the network
+    - to define the networks (internal -> `flaresolverr`, external -> `traefik`)
     - to start the official Node.js LTS Docker image (to run the release-file)
     - to start the official FlareSolverr Docker image (to scrape the sites)
-    - to start the official Caddy Docker image (to provide HTTPS support)
     - to shut down all the containers
     - to view the logs of the containers
     - to restart all at once
     - no bind mount or host pollution (caching `node_modules` etc.) is used
     - see `docker/docker-compose.yml` for details
-  - Caddy
+  - Traefik (external, not defined in this repo)
+    - runs as a separate container on the host (shared across services)
     - used as reverse proxy
-    - used for HTTPS handling
-    - see `docker/Caddyfile` for details
+    - used for HTTPS handling (Let's Encrypt via TLS challenge)
+    - routing and TLS config is done via Docker labels on the `node` container
+    - see [Traefik repo](https://github.com/mbodm/mbodm-traefik) for details
 - All build and deployment is controlled by `npm run` scripts (see `package.json`)
 - A complete rebuild & restart is triggered by running the `npm run release` script
 
@@ -41,12 +42,12 @@ which are used by my WOWCAM application (now only acting as simple desktop clien
 - By developing everything directly on that machine (remote)
 - By using _VS Code_ with active _Remote SSH_ extension
 - By using a DNS A-Record for the subdomain
-- By using Caddy for the HTTPS support (see above)
+- By using Traefik for the HTTPS support (see above)
 - By deploying everything in Docker containers (see above)
 
 ### Vibe coding?
 
-- Initially i built this project manually as a 25+ years experienced senior developer
+- Initially I built this project manually as a 25+ years experienced senior developer
 - Today it's developed and maintained with AI assistance (primarily Claude)
 - Claude Code can use the [CLAUDE.md](CLAUDE.md) file for repository-specific guidance
 - No changes are released before I personally review them in detail

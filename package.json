@@ -10,7 +10,6 @@
     "dcdown": "sudo docker compose -f docker/docker-compose.yml down",
     "dclogsnode": "sudo docker compose -f docker/docker-compose.yml logs node --follow",
     "dclogsfs": "sudo docker compose -f docker/docker-compose.yml logs flaresolverr --follow",
-    "dclogscaddy": "sudo docker compose -f docker/docker-compose.yml logs caddy --follow",
     "release": "npm run lint && npm run build && sleep 1 && npm run dcdown && sleep 1 && npm run dcup"
   },
   "author": "MBODM (mbodm.com)",

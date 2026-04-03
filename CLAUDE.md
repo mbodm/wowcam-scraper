@@ -1,14 +1,17 @@
-This file defines how coding agents should work in this repository.
+# CLAUDE.md
+
+This file defines how Claude should work in this repository.
 
 ## Project Context
 
-- Stack: Node.js (ESM, no framework), Docker Compose, Caddy, FlareSolverr
+- Stack: Node.js (ESM, no framework), FlareSolverr, Traefik, Docker Compose.
 - Source code: `/src`
 - Bundled runtime artifact: `/release/scrape.mjs` (deployed artifact, not the source directly)
 - Runtime topology:
   - `node` container runs `release/scrape.mjs`
   - `flaresolverr` container provides anti-bot scraping API
-  - `caddy` container reverse-proxies public traffic to Node
+  - `traefik` is an external reverse-proxy container (not defined in this repo)
+  - Traefik handles public traffic HTTPS for the `node` container (via Docker labels)
 
 ## Goals
 
@@ -56,7 +59,6 @@ This file defines how coding agents should work in this repository.
 ## Working Agreement for Agents
 
 - Never change operational config without explicitly asking user for it. This includes:
-  - `docker/Caddyfile`
   - `docker/docker-compose.yml`
 - For non-trivial changes, update both source and any operational config that must stay aligned, but for the latter, explicitly ask the user first.
 - Always prefer minimal patches over broad rewrites.
