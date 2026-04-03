@@ -6,7 +6,7 @@ WOWCAM backend service to scrape addon data
 
 - It's a very simple web scraper REST API service (written in pure JS)
 - It's a small Node.js project
-  - offering only a single HTTP GET endpoint
+  - offering only a single HTTP GET scrape endpoint -> `/scrape`
   - using ES-Modules `import` statements only (no CommonJS `require` statements)
   - using promises (via `async/await` statements)
   - using `esbuild` to create a single release-file (`release/scrape.mjs`)
@@ -21,7 +21,7 @@ WOWCAM backend service to scrape addon data
     - to shut down the containers
     - to restart the containers all at once
     - to view the logs of the containers
-    - no bind mount or host pollution (caching `node_modules` etc.) is used
+    - no host-polluting bind mounts (caching `node_modules` etc.) are used
     - see `docker-compose.yml` for details
   - Traefik (external, not defined in this repo)
     - runs as a separate container on the host (shared across services)
@@ -29,12 +29,12 @@ WOWCAM backend service to scrape addon data
     - used for HTTPS handling (Let's Encrypt via TLS challenge)
     - routing and TLS config is done via Docker labels on the `node` container
     - see [Traefik repo](https://github.com/mbodm/mbodm-traefik) for details
-- All build and deployment is controlled by `npm run` scripts (see `package.json`)
+- All build and deployment activity is controlled by `npm run` scripts (see `package.json`)
 - A complete rebuild & restart is triggered by running the `npm run release` script
 
 ### Why?
 
-To have some backend REST API service, which scrapes & serves addon download URLs,
+To have a backend REST API service, which scrapes and serves addon download URLs,
 which are used by my WOWCAM application (now only acting as simple desktop client).
 
 ### How?
