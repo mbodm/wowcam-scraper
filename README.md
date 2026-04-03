@@ -22,7 +22,7 @@ WOWCAM backend service to scrape addon data
     - to restart the containers all at once
     - to view the logs of the containers
     - no bind mount or host pollution (caching `node_modules` etc.) is used
-    - see `docker/docker-compose.yml` for details
+    - see `docker-compose.yml` for details
   - Traefik (external, not defined in this repo)
     - runs as a separate container on the host (shared across services)
     - used as reverse proxy

@@ -61,7 +61,7 @@ This file defines how Claude should work in this repository.
 ## Working Agreement for Agents
 
 - Never change operational config without explicitly asking user for it. This includes:
-  - `docker/docker-compose.yml`
+  - `docker-compose.yml`
 - For non-trivial changes, update both source and any operational config that must stay aligned, but for the latter, explicitly ask the user first.
 - Always prefer minimal patches over broad rewrites.
 - Avoid destructive git actions (`reset --hard`, force checkout, deleting unrelated files).
@@ -72,7 +72,7 @@ This file defines how Claude should work in this repository.
 After code changes, run what is available:
 
 1. `npm run build`
-2. If Docker is available: `docker compose -f docker/docker-compose.yml config`
+2. If Docker is available: `docker compose config`
 3. Smoke-check endpoints (for example `/` and `/scrape?addon=...`) in the running stack.
 4. `npm run release` is the build script, which creates `release/scrape.mjs` and restarts all Docker containers.
 

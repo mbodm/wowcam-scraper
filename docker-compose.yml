@@ -14,7 +14,7 @@ services:
     environment:
       - BASE_URL=https://wowcam.mbodm.com
     volumes:
-      - ../release:/app:ro
+      - ./release:/app:ro
     working_dir: /app
     command: [ "node", "scrape.mjs" ]
     networks:
