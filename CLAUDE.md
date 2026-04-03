@@ -47,8 +47,8 @@ This file defines how Claude should work in this repository.
 - Add/keep container hardening where practical:
   - non-root user
   - read-only FS where possible
-  - healthchecks
   - restart policy
+- Do **not** add healthchecks or a `/health` endpoint — not needed or wanted by design.
 - The API is an internal technical API: return concise, sanitized exception messages directly in responses so developer users can diagnose issues quickly; never include secrets/tokens, never include stack traces, and keep payloads small.
 - If a change could expose sensitive data (secrets/tokens), increase response verbosity excessively (for example stack traces), or enable API misuse, explicitly warn the user before proceeding.
 
