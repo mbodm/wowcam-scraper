@@ -10,7 +10,7 @@ WOWCAM backend service to scrape addon data
   - using ES-Modules `import` statements only (no CommonJS `require` statements)
   - using promises (via `async/await` statements)
   - using `esbuild` to create a single release-file (`release/scrape.mjs`)
-  - no external packages/dependencies (besides the `esbuild` dev dependency)
+  - using no external packages/dependencies (besides the `esbuild` dev dependency)
   - see `src` folder and `package.json` for details
 - Docker and Traefik are used for deployment
   - Docker Compose
