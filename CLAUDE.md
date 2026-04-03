@@ -4,13 +4,13 @@ This file defines how Claude should work in this repository.
 
 - Stack: Node.js (ESM, no framework), FlareSolverr, Traefik, Docker Compose.
 - Source code: `/src`
-- Bundled runtime artifact: `/release/scrape.mjs` (deployed artifact, not source directly)
+- Bundled runtime artifact: `/release/scrape.mjs` (deployed artifact, not the source directly)
 - Runtime topology:
   - `node` container runs `release/scrape.mjs`
-  - `flaresolverr` container provides anti-bot scraping API
+  - `flaresolverr` container provides scraping API (pinned to `latest` by design to always track the newest anti-bot countermeasure capabilities)
   - `traefik` is an external reverse-proxy container (not defined in this repo)
-  - Traefik handles public traffic HTTPS for the `node` container (via Docker labels)
-  - Inspect [Traefik repo](https://github.com/mbodm/mbodm-traefik) for configuartion details
+  - Traefik handles HTTPS for public traffic to the `node` container (via Docker labels)
+  - Inspect [Traefik repo](https://github.com/mbodm/mbodm-traefik) for configuration details
 
 ## Goals
 
@@ -25,7 +25,7 @@ This file defines how Claude should work in this repository.
 - Prefer small, pure functions with explicit input validation.
 - Never silently swallow errors (the API is designed to offer internal details, on purpose).
 - Avoid adding dependencies unless there is a clear operational benefit.
-- Keep responses human-friendly JSON (API is designed for inspecting directly in browser).
+- Keep responses human-friendly JSON (the API is designed for inspecting responses directly in the browser).
 - Use `console.log()` for logging; keep messages short and single-line.
 
 ## API and Error Handling
@@ -53,7 +53,7 @@ This file defines how Claude should work in this repository.
 ## Performance and Stability
 
 - Set explicit timeouts on all FlareSolverr and outbound HTTP calls; never wait indefinitely.
-- Avoid unbounded memory growth (e.g. not accumulate data in memory across requests).
+- Avoid unbounded memory growth (e.g. do not accumulate data in memory across requests).
 - Keep request handling non-blocking and idempotent.
 
 ## Working Agreement for Agents
