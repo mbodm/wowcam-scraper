@@ -1,5 +1,3 @@
-# CLAUDE.md
-
 This file defines how Claude should work in this repository.
 
 ## Project Context
