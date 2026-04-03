@@ -1,3 +1,5 @@
+# CLAUDE.md
+
 This file defines how Claude should work in this repository.
 
 ## Project Context
@@ -62,7 +64,7 @@ This file defines how Claude should work in this repository.
   - `docker/docker-compose.yml`
 - For non-trivial changes, update both source and any operational config that must stay aligned, but for the latter, explicitly ask the user first.
 - Always prefer minimal patches over broad rewrites.
-- Do not make destructive git actions (`reset --hard`, force checkout, erase unrelated files).
+- Avoid destructive git actions (`reset --hard`, force checkout, deleting unrelated files).
 - If the workspace has unrelated edits, do not revert them.
 
 ## Validation Checklist
