@@ -10,6 +10,7 @@ This file defines how Claude should work in this repository.
   - `flaresolverr` container provides anti-bot scraping API
   - `traefik` is an external reverse-proxy container (not defined in this repo)
   - Traefik handles public traffic HTTPS for the `node` container (via Docker labels)
+  - Inspect [Traefik repo](https://github.com/mbodm/mbodm-traefik) for configuartion details
 
 ## Goals
 
