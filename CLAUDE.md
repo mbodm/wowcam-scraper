@@ -53,7 +53,7 @@ This file defines how Claude should work in this repository.
 ## Performance and Stability
 
 - Set explicit timeouts on all FlareSolverr and outbound HTTP calls; never wait indefinitely.
-- Avoid unbounded memory growth (e.g. do not accumulate data in memory across requests).
+- Avoid unbounded memory growth (e.g. do not accumulate data across requests).
 - Keep request handling non-blocking and idempotent.
 
 ## Working Agreement for Agents
