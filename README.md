@@ -17,7 +17,7 @@ WOWCAM backend service to scrape addon data
     - to define the networks (internal -> `flaresolverr`, external -> `traefik`)
     - to start the official Node.js LTS Docker image (to run the release-file)
     - to start the official FlareSolverr Docker image (to scrape the sites)
-    - to shut down all the containers
+    - to shut down the containers
     - to view the logs of the containers
     - to restart all at once
     - no bind mount or host pollution (caching `node_modules` etc.) is used
