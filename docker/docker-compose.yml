@@ -45,4 +45,3 @@ networks:
     external: true
   my-backend-net:
     driver: bridge
-    internal: true
